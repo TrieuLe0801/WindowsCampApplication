@@ -11,17 +11,29 @@ using System.Windows.Forms;
 using System.Collections;
 using System.Collections.Generic;
 using WindowsCampApplication.Model;
+using System.Threading;
+using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Remote;
-using System.Threading;
 
 namespace WindowsCampApplication
 {
     public partial class webCampingWindows : Form
     {
+        public static String[] userAgent = new String[] {
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.87 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36",
+//			"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.87 Safari/537.36",
+//			"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36",
+//			"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+//			"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36",
+//			"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"
+			};
+
         List<OrderInfo> orderList = new List<OrderInfo>();
-        private object desiredCapabilities;
 
         public webCampingWindows()
         {
@@ -86,23 +98,58 @@ namespace WindowsCampApplication
         // Load and get order
         public void LoadDriver(OrderInfo orderInfo)
         {
+
             ChromeOptions options = new ChromeOptions();
+
+            // set up agent
+            Random rand = new Random();
+            int agent = rand.Next(0, userAgent.Length);
+            options.AddArgument("--user-agent=" + userAgent[agent]);
             options.AddArguments("--disable-extensions");
             options.AddArguments("--incognito");
-            options.ToCapabilities();
+            
+            // set driver
             IWebDriver driver = new ChromeDriver(Path.Combine(Directory.GetParent(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName, 
                 @"WindowsCampApplication"),options);
-
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine("Loaded page");
-            Thread.Sleep(8000);
+            Thread.Sleep(10000);
+            try
+            {
+                driver.FindElement(
+                    By.XPath("//button[@class='size-grid-dropdown size-grid-button']"));
+                Console.WriteLine("Load button size");
+            }catch(Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            driver.FindElement(By.XPath(
+                "//button[@class='locale-button u-full-height p0-sm d-sm-b d-md-ib ncss-btn-transparent']")).Click();
+            Thread.Sleep(5000);
 
-            // find size button and click
+            driver.FindElement(By.XPath(
+                "//div[@class='ncss-container p6-sm p12-md u-full-width u-full-height']"));
+            Thread.Sleep(2000);
+            Console.WriteLine("Load select location");
 
-            driver.FindElement(
-                By.XPath($"//button[contains(text(),{orderInfo.Size})]"));
+            driver.FindElement(By.XPath(
+                "//span[contains(text(), 'United States')]")).Click();
+            Thread.Sleep(2000);
+            Console.WriteLine("Load click location");
+
+            driver.Navigate().GoToUrl(orderInfo.OrderLink);
+            Thread.Sleep(2000);
+
+            Console.WriteLine("Load page"); driver.FindElement(
+                By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
             Console.WriteLine("Load button size");
+            Thread.Sleep(2000);
+
+            driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
+            Thread.Sleep(2000);
         }
     }
 }
