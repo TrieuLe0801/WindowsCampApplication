@@ -34,7 +34,8 @@ namespace WindowsCampApplication
 //			"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"
 			};
 
-        List<OrderInfo> orderList = new List<OrderInfo>();
+        public static List<OrderInfo> orderList = new List<OrderInfo>();
+        public static int HEADLESS = 0;
 
         public webCampingWindows()
         {
@@ -94,7 +95,16 @@ namespace WindowsCampApplication
 
         private void campBtn_Click(object sender, EventArgs e)
         {
-            LoadDriver(orderList[0]);
+            if(orderList.Count == 0)
+            {
+                // Change alert panel
+                Console.WriteLine("Need add order");
+            }
+            else
+            {
+                LoadDriver(orderList[0]);
+            }
+            
         }
 
         // Load and get order
@@ -108,7 +118,14 @@ namespace WindowsCampApplication
             int agent = rand.Next(0, userAgent.Length);
             options.AddArgument("--user-agent=" + userAgent[agent]);
             options.AddArguments("--disable-extensions");
-            options.AddArguments("--incognito");
+            if(HEADLESS == 1)
+            {
+                options.AddArguments("--incognito","--headless");
+            }
+            else
+            {
+                options.AddArguments("--incognito");
+            }
             
             // set driver
             IWebDriver driver = new ChromeDriver(Path.Combine(Directory.GetParent(
@@ -147,14 +164,15 @@ namespace WindowsCampApplication
                 driver.Navigate().GoToUrl(orderInfo.OrderLink);
                 Thread.Sleep(2000);
                 Console.WriteLine("Load page");
-                driver.FindElement(
-                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
-                Console.WriteLine("Load button size");
-                Thread.Sleep(2000);
-
-                driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
-                Thread.Sleep(2000);
+               
             }
+            driver.FindElement(
+                   By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
+            Console.WriteLine("Load button size");
+            Thread.Sleep(2000);
+
+            driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
+            Thread.Sleep(2000);
             //driver.FindElement(By.XPath(
             //    "//button[@class='locale-button u-full-height p0-sm d-sm-b d-md-ib ncss-btn-transparent']")).Click();
             //Thread.Sleep(5000);
@@ -179,6 +197,16 @@ namespace WindowsCampApplication
 
             //driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
             //Thread.Sleep(2000);
+        }
+
+        private void headlessCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            bool CheckBox = false;
+            CheckBox = headlessCheckbox.Checked;
+            if (CheckBox = true)
+            {
+                HEADLESS = 1;
+            }
         }
     }
 }

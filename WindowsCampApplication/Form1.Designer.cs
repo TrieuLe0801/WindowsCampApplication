@@ -35,6 +35,7 @@
             this.resultLabel = new System.Windows.Forms.Label();
             this.loadFileBtn = new System.Windows.Forms.Button();
             this.campBtn = new System.Windows.Forms.Button();
+            this.headlessCheckbox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // orderInforTextBox
@@ -109,11 +110,23 @@
             this.campBtn.UseVisualStyleBackColor = true;
             this.campBtn.Click += new System.EventHandler(this.campBtn_Click);
             // 
+            // headlessCheckbox
+            // 
+            this.headlessCheckbox.AutoSize = true;
+            this.headlessCheckbox.Location = new System.Drawing.Point(484, 397);
+            this.headlessCheckbox.Name = "headlessCheckbox";
+            this.headlessCheckbox.Size = new System.Drawing.Size(89, 21);
+            this.headlessCheckbox.TabIndex = 4;
+            this.headlessCheckbox.Text = "Headless";
+            this.headlessCheckbox.UseVisualStyleBackColor = true;
+            this.headlessCheckbox.CheckedChanged += new System.EventHandler(this.headlessCheckbox_CheckedChanged);
+            // 
             // webCampingWindows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1061, 702);
+            this.Controls.Add(this.headlessCheckbox);
             this.Controls.Add(this.campBtn);
             this.Controls.Add(this.loadFileBtn);
             this.Controls.Add(this.resultLabel);
@@ -138,6 +151,7 @@
         private System.Windows.Forms.Label resultLabel;
         private System.Windows.Forms.Button loadFileBtn;
         private System.Windows.Forms.Button campBtn;
+        private System.Windows.Forms.CheckBox headlessCheckbox;
     }
 }
 
