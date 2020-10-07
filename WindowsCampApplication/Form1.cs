@@ -140,10 +140,10 @@ namespace WindowsCampApplication
             {
                 isDisplay = driver.FindElement(
                     By.XPath("//button[@class='size-grid-dropdown size-grid-button']")).Displayed;
-                Console.WriteLine("Load button size");
             }catch(Exception e)
             {
                 Console.WriteLine(e);
+                driver.Quit();
             }
             if (!isDisplay)
             {
@@ -166,37 +166,55 @@ namespace WindowsCampApplication
                 Console.WriteLine("Load page");
                
             }
-            driver.FindElement(
-                   By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
-            Console.WriteLine("Load button size");
-            Thread.Sleep(2000);
 
-            driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
-            Thread.Sleep(2000);
-            //driver.FindElement(By.XPath(
-            //    "//button[@class='locale-button u-full-height p0-sm d-sm-b d-md-ib ncss-btn-transparent']")).Click();
-            //Thread.Sleep(5000);
+            bool sizeAvailable = false;
+            try
+            {
+               sizeAvailable = driver.FindElement(
+                   By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Displayed;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                driver.Quit();
+            }
 
-            //driver.FindElement(By.XPath(
-            //    "//div[@class='ncss-container p6-sm p12-md u-full-width u-full-height']"));
-            //Thread.Sleep(2000);
-            //Console.WriteLine("Load select location");
+            if (sizeAvailable==false)
+            {
+                // add result
+                Console.WriteLine("There are no size");
+                driver.Quit();
+            }
+            else
+            {
+                if(!driver.FindElement(
+                   By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Enabled)
+                {
+                    //add result
+                    Console.WriteLine($"Size {orderInfo.Size} out of");
+                    driver.Quit();
+                }
+                else
+                {
+                    driver.FindElement(
+                  By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
+                    Console.WriteLine("Load button size");
+                    Thread.Sleep(2000);
 
-            //driver.FindElement(By.XPath(
-            //    $"//span[contains(text(), '{orderInfo.Country}')]")).Click();
-            //Thread.Sleep(2000);
-            //Console.WriteLine("Load click location");
+                    driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
+                    Thread.Sleep(2000);
 
-            //driver.Navigate().GoToUrl(orderInfo.OrderLink);
-            //Thread.Sleep(2000);
+                    driver.FindElement(
+                           By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent " +
+                           "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
+                    Thread.Sleep(2000);
 
-            //Console.WriteLine("Load page"); driver.FindElement(
-            //    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
-            //Console.WriteLine("Load button size");
-            //Thread.Sleep(2000);
-
-            //driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
-            //Thread.Sleep(2000);
+                    driver.FindElement(
+                           By.XPath("//button[@data-automation='guest-checkout-button']")).Click();
+                    Thread.Sleep(2000);
+                }
+            }  
+            Console.WriteLine("Load finish");
         }
 
         private void headlessCheckbox_CheckedChanged(object sender, EventArgs e)
