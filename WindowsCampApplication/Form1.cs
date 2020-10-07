@@ -81,7 +81,7 @@ namespace WindowsCampApplication
 
         public void loadDriver(string driverLink)
         {
-            IWebDriver driver = new ChromeDriver(@"D:\work\WindowsCampApplication\");
+            IWebDriver driver = new ChromeDriver(@"..\\");
             driver.Navigate().GoToUrl(driverLink);
             Console.WriteLine("Loaded page");
         }
