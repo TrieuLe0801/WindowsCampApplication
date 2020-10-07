@@ -13,12 +13,16 @@ using System.Collections.Generic;
 using WindowsCampApplication.Model;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Remote;
+using System.Threading;
 
 namespace WindowsCampApplication
 {
     public partial class webCampingWindows : Form
     {
         List<OrderInfo> orderList = new List<OrderInfo>();
+        private object desiredCapabilities;
+
         public webCampingWindows()
         {
             InitializeComponent();
@@ -76,16 +80,29 @@ namespace WindowsCampApplication
 
         private void campBtn_Click(object sender, EventArgs e)
         {
-            loadDriver(orderList[0].OrderLink);
+            LoadDriver(orderList[0]);
         }
 
-        public void loadDriver(string driverLink)
+        // Load and get order
+        public void LoadDriver(OrderInfo orderInfo)
         {
+            ChromeOptions options = new ChromeOptions();
+            options.AddArguments("--disable-extensions");
+            options.AddArguments("--incognito");
+            options.ToCapabilities();
             IWebDriver driver = new ChromeDriver(Path.Combine(Directory.GetParent(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName, 
-                @"WindowsCampApplication"));
-            driver.Navigate().GoToUrl(driverLink);
+                @"WindowsCampApplication"),options);
+
+            driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine("Loaded page");
+            Thread.Sleep(8000);
+
+            // find size button and click
+
+            driver.FindElement(
+                By.XPath($"//button[contains(text(),{orderInfo.Size})]"));
+            Console.WriteLine("Load button size");
         }
     }
 }

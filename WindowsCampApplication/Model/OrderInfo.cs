@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WindowsCampApplication.Model
 {
-    class OrderInfo
+    public class OrderInfo
     {
         // Properties.
         public string OrderLink { get; set; }
