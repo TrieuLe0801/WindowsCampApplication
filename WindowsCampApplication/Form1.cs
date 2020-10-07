@@ -15,6 +15,7 @@ using System.Threading;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
+using System.Text.RegularExpressions;
 
 namespace WindowsCampApplication
 {
@@ -77,6 +78,7 @@ namespace WindowsCampApplication
                         sub_order.Size = info[1];
                         sub_order.Time = Convert.ToDateTime(info[2],
                             System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat);
+                        sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
                         orderList.Add(sub_order);
                     }
                     //foreach(OrderInfo o in orderList)
@@ -116,40 +118,67 @@ namespace WindowsCampApplication
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine("Loaded page");
             Thread.Sleep(10000);
+            bool isDisplay = false;
             try
             {
-                driver.FindElement(
-                    By.XPath("//button[@class='size-grid-dropdown size-grid-button']"));
+                isDisplay = driver.FindElement(
+                    By.XPath("//button[@class='size-grid-dropdown size-grid-button']")).Displayed;
                 Console.WriteLine("Load button size");
             }catch(Exception e)
             {
                 Console.WriteLine(e);
             }
-            
-            driver.FindElement(By.XPath(
+            if (!isDisplay)
+            {
+                driver.FindElement(By.XPath(
                 "//button[@class='locale-button u-full-height p0-sm d-sm-b d-md-ib ncss-btn-transparent']")).Click();
-            Thread.Sleep(5000);
+                Thread.Sleep(5000);
 
-            driver.FindElement(By.XPath(
-                "//div[@class='ncss-container p6-sm p12-md u-full-width u-full-height']"));
-            Thread.Sleep(2000);
-            Console.WriteLine("Load select location");
+                driver.FindElement(By.XPath(
+                    "//div[@class='ncss-container p6-sm p12-md u-full-width u-full-height']"));
+                Thread.Sleep(2000);
+                Console.WriteLine("Load select location");
 
-            driver.FindElement(By.XPath(
-                "//span[contains(text(), 'United States')]")).Click();
-            Thread.Sleep(2000);
-            Console.WriteLine("Load click location");
+                driver.FindElement(By.XPath(
+                    $"//span[contains(text(), '{orderInfo.Country}')]")).Click();
+                Thread.Sleep(2000);
+                Console.WriteLine("Load click location");
 
-            driver.Navigate().GoToUrl(orderInfo.OrderLink);
-            Thread.Sleep(2000);
+                driver.Navigate().GoToUrl(orderInfo.OrderLink);
+                Thread.Sleep(2000);
+                Console.WriteLine("Load page");
+                driver.FindElement(
+                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
+                Console.WriteLine("Load button size");
+                Thread.Sleep(2000);
 
-            Console.WriteLine("Load page"); driver.FindElement(
-                By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
-            Console.WriteLine("Load button size");
-            Thread.Sleep(2000);
+                driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
+                Thread.Sleep(2000);
+            }
+            //driver.FindElement(By.XPath(
+            //    "//button[@class='locale-button u-full-height p0-sm d-sm-b d-md-ib ncss-btn-transparent']")).Click();
+            //Thread.Sleep(5000);
 
-            driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
-            Thread.Sleep(2000);
+            //driver.FindElement(By.XPath(
+            //    "//div[@class='ncss-container p6-sm p12-md u-full-width u-full-height']"));
+            //Thread.Sleep(2000);
+            //Console.WriteLine("Load select location");
+
+            //driver.FindElement(By.XPath(
+            //    $"//span[contains(text(), '{orderInfo.Country}')]")).Click();
+            //Thread.Sleep(2000);
+            //Console.WriteLine("Load click location");
+
+            //driver.Navigate().GoToUrl(orderInfo.OrderLink);
+            //Thread.Sleep(2000);
+
+            //Console.WriteLine("Load page"); driver.FindElement(
+            //    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
+            //Console.WriteLine("Load button size");
+            //Thread.Sleep(2000);
+
+            //driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
+            //Thread.Sleep(2000);
         }
     }
 }
