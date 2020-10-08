@@ -125,20 +125,21 @@ namespace WindowsCampApplication
             }
             else
             {
-                while (orderList.Count > 0)
-                {
-                    Parallel.ForEach(orderList,
-                        // Limit load page per time
-                        new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
-                        {
-                            LoadDriver(order);
-                            Console.WriteLine("Link: {0}, at Thread = {1}",
-                                order.OrderLink,
-                                Thread.CurrentThread.ManagedThreadId);
-                            orderList.Remove(order);
-                        }
-                    );
-                }
+                LoadDriver(orderList[0]);
+                //while (orderList.Count > 0)
+                //{
+                //    Parallel.ForEach(orderList,
+                //        // Limit load page per time
+                //        new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
+                //        {
+                //            LoadDriver(order);
+                //            Console.WriteLine("Link: {0}, at Thread = {1}",
+                //                order.OrderLink,
+                //                Thread.CurrentThread.ManagedThreadId);
+                //            orderList.Remove(order);
+                //        }
+                //    );
+                //}
                 
             }
             
@@ -172,17 +173,19 @@ namespace WindowsCampApplication
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine("Loaded page");
             Thread.Sleep(10000);
-            bool isDisplay = false;
+            string locate = "";
             try
             {
-                isDisplay = driver.FindElement(
-                    By.XPath("//button[@class='size-grid-dropdown size-grid-button']")).Displayed;
-            }catch(Exception e)
+                locate = driver.FindElement(
+                    By.XPath("//span[@class='d-sm-ib va-sm-m small text-color-secondary']")).Text;
+                Thread.Sleep(2000);
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e);
                 driver.Quit();
             }
-            if (!isDisplay)
+            if (!locate.Equals(orderInfo.Country))
             {
                 driver.FindElement(By.XPath(
                 "//button[@class='locale-button u-full-height p0-sm d-sm-b d-md-ib ncss-btn-transparent']")).Click();
