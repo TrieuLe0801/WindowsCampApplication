@@ -44,7 +44,7 @@ namespace WindowsCampApplication
         public static string CHROMEDRIVER_PATH = Path.Combine(Directory.GetParent(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
                 @"WindowsCampApplication");
-
+        public static Object _lock = new Object();
         public webCampingWindows()
         {
             InitializeComponent();
@@ -136,10 +136,15 @@ namespace WindowsCampApplication
                     // Limit load page per time
                     new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
                     {
-                        LoadDriver(order);
+                        string result = LoadDriver(order);
                         Console.WriteLine("Link: {0}, at Thread = {1}",
                             order.OrderLink,
                             Thread.CurrentThread.ManagedThreadId);
+                        resultTextBox.Invoke( new MethodInvoker(delegate
+                        {
+                            resultTextBox.Text += result + Environment.NewLine;
+                        }
+                            ));
                         Thread.Sleep(15000);
                     }
                 );
@@ -147,8 +152,10 @@ namespace WindowsCampApplication
         }
 
         // Load and get order
-        public void LoadDriver(OrderInfo orderInfo)
+        public string  LoadDriver(OrderInfo orderInfo)
         {
+            string result = "";
+
             var chromeDriverService = ChromeDriverService.CreateDefaultService();
             chromeDriverService.HideCommandPromptWindow = true;
             ChromeOptions options = new ChromeOptions();
@@ -247,7 +254,8 @@ namespace WindowsCampApplication
             if (soldOut)
             {
                 // add result
-                Console.WriteLine("Sold Out");
+                result = $"Product at link {orderInfo.OrderLink} was SOLD OUT|FAILED";
+                Console.WriteLine(result);
                 driver.Quit();
             }
 
@@ -267,7 +275,8 @@ namespace WindowsCampApplication
             if (sizeAvailable == false)
             {
                 // add result
-                Console.WriteLine("There are no size");
+                result = $"This size is unavailable at link {orderInfo.OrderLink}|FAILED";
+                Console.WriteLine(result);
                 driver.Quit();
             }
             else
@@ -276,7 +285,8 @@ namespace WindowsCampApplication
                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Enabled)
                 {
                     //add result
-                    Console.WriteLine($"Size {orderInfo.Size} out of");
+                    result = $"This size is run out off at link {orderInfo.OrderLink}|FAILED";
+                    Console.WriteLine(result);
                     driver.Quit();
                 }
                 else
@@ -290,12 +300,12 @@ namespace WindowsCampApplication
                     // Click add to cart
                     driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Click();
                     Thread.Sleep(2000);
-                    IWebElement CC = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(By.XPath("//button[@class='ncss-btn-primary-dark']")));
+                    //IWebElement CC = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(By.XPath("//button[@class='ncss-btn-primary-dark']")));
                     // CLick the cart
                     if (HEADLESS == 1)
                     {
                         Thread.Sleep(2000);
-                        CC.Click();
+                        //CC.Click();
                         Thread.Sleep(2000);
                     }
                     else
@@ -318,13 +328,17 @@ namespace WindowsCampApplication
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("There are no product in cart");
+                        result = $"Failed order {orderInfo.OrderLink}|FAILED";
+                        Console.WriteLine(result);
+                        resultTextBox.Text += result + Environment.NewLine;
+                        driver.Quit();
                     }
-
+                    result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
+                    Console.WriteLine(result);
                     driver.Quit();
-                    Console.WriteLine($"Load finish {orderInfo.OrderLink} SUCCESSED");
                 }
             }
+            return result;
         }
 
         private void headlessCheckbox_CheckedChanged(object sender, EventArgs e)
