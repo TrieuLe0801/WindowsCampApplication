@@ -16,6 +16,8 @@ using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium;
 using System.Text.RegularExpressions;
+using System.Collections.Concurrent;
+using OpenQA.Selenium.Support.UI;
 
 namespace WindowsCampApplication
 {
@@ -38,6 +40,9 @@ namespace WindowsCampApplication
         public static List<OrderInfo> orderList = new List<OrderInfo>();
         public static int HEADLESS = 0;
         public static int TAB = 0;
+        public static string CHROMEDRIVER_PATH = Path.Combine(Directory.GetParent(
+                Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
+                @"WindowsCampApplication");
 
         public webCampingWindows()
         {
@@ -85,7 +90,7 @@ namespace WindowsCampApplication
                         orderList.Add(sub_order);
                     }
                 }
-                orderInforTextBox.Text += fileContent + Environment.NewLine;
+                orderInforTextBox.Text = fileContent + Environment.NewLine;
             }
         }
 
@@ -125,51 +130,54 @@ namespace WindowsCampApplication
             }
             else
             {
-                LoadDriver(orderList[0]);
-                //while (orderList.Count > 0)
-                //{
-                //    Parallel.ForEach(orderList,
-                //        // Limit load page per time
-                //        new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
-                //        {
-                //            LoadDriver(order);
-                //            Console.WriteLine("Link: {0}, at Thread = {1}",
-                //                order.OrderLink,
-                //                Thread.CurrentThread.ManagedThreadId);
-                //            orderList.Remove(order);
-                //        }
-                //    );
-                //}
-                
+                Parallel.ForEach(orderList,
+                    // Limit load page per time
+                    new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
+                    {
+                        LoadDriver(order);
+                        Console.WriteLine("Link: {0}, at Thread = {1}",
+                            order.OrderLink,
+                            Thread.CurrentThread.ManagedThreadId);
+                        Thread.Sleep(10000);
+                    }
+                );
             }
-            
         }
 
         // Load and get order
         public void LoadDriver(OrderInfo orderInfo)
         {
-
+            var chromeDriverService = ChromeDriverService.CreateDefaultService();
+            chromeDriverService.HideCommandPromptWindow = true;
             ChromeOptions options = new ChromeOptions();
 
             // set up agent
             Random rand = new Random();
             int agent = rand.Next(0, userAgent.Length);
             options.AddArgument("--user-agent=" + userAgent[agent]);
+            options.AddArguments("--disable-gpu");
+            options.AddArguments("--no-sandbox");
+            options.AddArguments("--silent");
+            options.AddArguments("--disable-web-security");
             options.AddArguments("--disable-extensions");
-            if(HEADLESS == 1)
+            options.AddArguments("--log-level=3");
+            options.AddArguments("--proxy-server='direct://'");
+            options.AddArguments("--proxy-bypass-list=*");
+            options.AddArgument("test-type");
+            options.AddArgument("--ignore-certificate-errors");
+            if (HEADLESS == 1)
             {
-                options.AddArguments("--incognito","--headless");
+                options.AddArguments("--incognito", "--headless");
             }
             else
             {
                 options.AddArguments("--incognito");
             }
-            
+
             // set driver
-            IWebDriver driver = new ChromeDriver(Path.Combine(Directory.GetParent(
-                Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName, 
-                @"WindowsCampApplication"),options);
+            IWebDriver driver = new ChromeDriver(chromeDriverService, options);
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine("Loaded page");
             Thread.Sleep(10000);
@@ -188,7 +196,7 @@ namespace WindowsCampApplication
             if (!locate.Equals(orderInfo.Country))
             {
                 driver.FindElement(By.XPath(
-                "//button[@class='locale-button u-full-height p0-sm d-sm-b d-md-ib ncss-btn-transparent']")).Click();
+                "//button[@data-qa='locale-selector-button']")).Click();
                 Thread.Sleep(5000);
 
                 driver.FindElement(By.XPath(
@@ -204,22 +212,43 @@ namespace WindowsCampApplication
                 driver.Navigate().GoToUrl(orderInfo.OrderLink);
                 Thread.Sleep(2000);
                 Console.WriteLine("Load page");
-               
+
             }
 
-            bool sizeAvailable = false;
+            // Check sold out
+            bool soldOut = false;
             try
             {
-               sizeAvailable = driver.FindElement(
-                   By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Displayed;
+                soldOut = driver.FindElement(By.XPath(
+                    "//div[@class='ncss-btn-primary-dark btn-lg disabled d-sm-b d-lg-ib buyable-full-width' " +
+                    "and contains(text(),'Sold Out')]")).Displayed;
+                Thread.Sleep(2000);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e);
+            }
+            if (soldOut)
+            {
+                // add result
+                Console.WriteLine("Sold Out");
                 driver.Quit();
             }
 
-            if (sizeAvailable==false)
+            // Check size available
+            bool sizeAvailable = false;
+            try
+            {
+                sizeAvailable = driver.FindElement(
+                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Displayed;
+                Thread.Sleep(2000);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            if (sizeAvailable == false)
             {
                 // add result
                 Console.WriteLine("There are no size");
@@ -227,7 +256,7 @@ namespace WindowsCampApplication
             }
             else
             {
-                if(!driver.FindElement(
+                if (!driver.FindElement(
                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Enabled)
                 {
                     //add result
@@ -236,34 +265,48 @@ namespace WindowsCampApplication
                 }
                 else
                 {
+                    // Click button size
                     driver.FindElement(
-                  By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
+                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
                     Console.WriteLine("Load button size");
                     Thread.Sleep(2000);
 
+                    // Click add to cart
                     driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg']")).Click();
                     Thread.Sleep(2000);
 
+                    // CLick the cart
                     driver.FindElement(
                            By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent " +
                            "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
                     Thread.Sleep(2000);
-
-                    driver.FindElement(
+                    
+                    // Click to checkout
+                    try
+                    {
+                        driver.FindElement(
                            By.XPath("//button[@data-automation='guest-checkout-button']")).Click();
-                    Thread.Sleep(2000);
+                        Thread.Sleep(2000);
+                    }catch(Exception e)
+                    {
+                        Console.WriteLine("There are no product in cart");
+                    }
+                    
+                    driver.Quit();
+                    Console.WriteLine($"Load finish {orderInfo.OrderLink}");
                 }
-            }  
-            Console.WriteLine("Load finish");
+            }
         }
 
         private void headlessCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            bool CheckBox = false;
-            CheckBox = headlessCheckbox.Checked;
-            if (CheckBox = true)
+            if (headlessCheckbox.Checked)
             {
                 HEADLESS = 1;
+            }
+            else
+            {
+                HEADLESS = 0;
             }
         }
     }
