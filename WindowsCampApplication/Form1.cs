@@ -84,12 +84,6 @@ namespace WindowsCampApplication
                         sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
                         orderList.Add(sub_order);
                     }
-                    //foreach(OrderInfo o in orderList)
-                    //{
-                    //    Console.WriteLine(o.OrderLink);
-                    //    Console.WriteLine(o.Size);
-                    //    Console.WriteLine(o.Time);
-                    //}
                 }
                 orderInforTextBox.Text += fileContent + Environment.NewLine;
             }
@@ -100,29 +94,34 @@ namespace WindowsCampApplication
             //Get tab will be launched
             if (tabBox.Text.Equals(""))
             {
-                // alert box
-                Console.WriteLine("Please insert number of tab");
+                String message = "Please insert number of tab";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message",buttons,MessageBoxIcon.Warning);
                 return;
             }
             if (!tabBox.Text.All(c=>Char.IsNumber(c)))
             {
-                // alert box
-                Console.WriteLine("Tab should be number");
+                String message = "Tab should be number";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
                 return;
             }
             TAB = Int32.Parse(tabBox.Text);
             if (TAB >= 5||TAB <= 0)
             {
                 //alert box
-                Console.WriteLine("Number of tab should be over 0 and under 5");
+                String message = "Number of tab should be over 0 and under 5";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
                 return;
             }
             DateTime now = DateTime.Now;
             
             if(orderList.Count == 0)
             {
-                // Alert box
-                Console.WriteLine("Need add order");
+                String message = "Need add order";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
             }
             else
             {
