@@ -38,7 +38,6 @@ namespace WindowsCampApplication
         public static List<OrderInfo> orderList = new List<OrderInfo>();
         public static int HEADLESS = 0;
         public static int TAB = 0;
-        public static int IS_PROCESSING = 0;
 
         public webCampingWindows()
         {
@@ -48,13 +47,6 @@ namespace WindowsCampApplication
 
         private void loadFileBtn_Click(object sender, EventArgs e)
         {
-            if(IS_PROCESSING == 1)
-            {
-                String message = "The application are processing, Please wait.";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
-                return;
-            }
             String[] sub_array;
             var filePath = string.Empty;
             var fileContent = string.Empty;
@@ -100,7 +92,6 @@ namespace WindowsCampApplication
         private void campBtn_Click(object sender, EventArgs e)
         {
             //Get tab will be launched
-            //Check tab is available
             if (tabBox.Text.Equals(""))
             {
                 String message = "Please insert number of tab";
@@ -108,8 +99,6 @@ namespace WindowsCampApplication
                 MessageBox.Show(message, "Alert message",buttons,MessageBoxIcon.Warning);
                 return;
             }
-
-            //Check tab is number
             if (!tabBox.Text.All(c=>Char.IsNumber(c)))
             {
                 String message = "Tab should be number";
@@ -117,8 +106,6 @@ namespace WindowsCampApplication
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
                 return;
             }
-
-            //Get value from tab textbox
             TAB = Int32.Parse(tabBox.Text);
             if (TAB >= 5||TAB <= 0)
             {
@@ -128,48 +115,31 @@ namespace WindowsCampApplication
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
                 return;
             }
-
-            //Time to wait to launched (next phase)
             DateTime now = DateTime.Now;
             
-            // Check order is loaded
             if(orderList.Count == 0)
             {
                 String message = "Need add order";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
-                return;
-            }
-
-            // Check application is running or not
-            if (IS_PROCESSING == 1)
-            {
-                String message = "The application are processing, Please wait.";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
             }
             else
             {
-                IS_PROCESSING = 1;
-                LoadDriver(orderList[0]);
-                //Parallel.ForEach(orderList,
-                //    // Limit load page per time
-                //    new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
-                //    {
-                //        try
-                //        {
-                //            LoadDriver(order);
-                //            Console.WriteLine("Link: {0}, at Thread = {1}",
-                //                order.OrderLink,
-                //                Thread.CurrentThread.ManagedThreadId);
-                //        }catch(Exception ex)
-                //        {
-                //            Console.WriteLine(ex);
-                //        }
-                //    }
-                //);
-                Thread.Sleep(15000);
-                IS_PROCESSING = 0;
+                while (orderList.Count > 0)
+                {
+                    Parallel.ForEach(orderList,
+                        // Limit load page per time
+                        new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
+                        {
+                            LoadDriver(order);
+                            Console.WriteLine("Link: {0}, at Thread = {1}",
+                                order.OrderLink,
+                                Thread.CurrentThread.ManagedThreadId);
+                            orderList.Remove(order);
+                        }
+                    );
+                }
+                
             }
             
         }
@@ -202,21 +172,20 @@ namespace WindowsCampApplication
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine("Loaded page");
             Thread.Sleep(10000);
-            String locate = driver.FindElement(By.XPath("//span[@class='d-sm-ib va-sm-m small text-color-secondary']")).Text;
-            //bool isDisplay = false;
-            //try
-            //{
-            //    isDisplay = driver.FindElement(
-            //        By.XPath("//button[@class='size-grid-dropdown size-grid-button']")).Displayed;
-            //}catch(Exception e)
-            //{
-            //    Console.WriteLine(e);
-            //    driver.Quit();
-            //}
-            if (!locate.Equals(orderInfo.Country))
+            bool isDisplay = false;
+            try
+            {
+                isDisplay = driver.FindElement(
+                    By.XPath("//button[@class='size-grid-dropdown size-grid-button']")).Displayed;
+            }catch(Exception e)
+            {
+                Console.WriteLine(e);
+                driver.Quit();
+            }
+            if (!isDisplay)
             {
                 driver.FindElement(By.XPath(
-                "//span[@class='d-sm-ib va-sm-m small text-color-secondary']")).Click();
+                "//button[@class='locale-button u-full-height p0-sm d-sm-b d-md-ib ncss-btn-transparent']")).Click();
                 Thread.Sleep(5000);
 
                 driver.FindElement(By.XPath(
@@ -235,33 +204,11 @@ namespace WindowsCampApplication
                
             }
 
-            // Check sold out
-            bool isSoldOut = false;
-            try
-            {
-                isSoldOut = driver.FindElement(By.XPath("//div[@class='buttoncount-1'and contains(text(),'Sold Out')]")).Displayed;
-                Thread.Sleep(2000);
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e);
-                driver.Quit();
-            }
-            
-            if (isSoldOut)
-            {
-                // add result
-                Console.WriteLine("This product sold out ");
-                driver.Quit();
-            }
-
-            // Check size
             bool sizeAvailable = false;
             try
             {
                sizeAvailable = driver.FindElement(
-                   By.XPath($"//button[@data-qa='size-dropdown' and contains(text(),'{orderInfo.Size}')]")).Displayed;
-                Thread.Sleep(2000);
+                   By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Displayed;
             }
             catch(Exception e)
             {
@@ -278,7 +225,7 @@ namespace WindowsCampApplication
             else
             {
                 if(!driver.FindElement(
-                   By.XPath($"//button[@data-qa='size-dropdown' and contains(text(),'{orderInfo.Size}')]")).Enabled)
+                   By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Enabled)
                 {
                     //add result
                     Console.WriteLine($"Size {orderInfo.Size} out of");
@@ -305,7 +252,6 @@ namespace WindowsCampApplication
                 }
             }  
             Console.WriteLine("Load finish");
-            driver.Quit();
         }
 
         private void headlessCheckbox_CheckedChanged(object sender, EventArgs e)
