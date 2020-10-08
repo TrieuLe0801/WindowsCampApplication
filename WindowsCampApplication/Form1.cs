@@ -150,21 +150,15 @@ namespace WindowsCampApplication
             var chromeDriverService = ChromeDriverService.CreateDefaultService();
             chromeDriverService.HideCommandPromptWindow = true;
             ChromeOptions options = new ChromeOptions();
-
+            
             // set up agent
             Random rand = new Random();
             int agent = rand.Next(0, userAgent.Length);
             options.AddArgument("--user-agent=" + userAgent[agent]);
+            //options.AddArguments("--proxy-server=http://" + "75.109.186.174:8080");
             options.AddArguments("--disable-gpu");
-            options.AddArguments("--no-sandbox");
-            options.AddArguments("--silent");
-            options.AddArguments("--disable-web-security");
             options.AddArguments("--disable-extensions");
-            options.AddArguments("--log-level=3");
-            options.AddArguments("--proxy-server='direct://'");
-            options.AddArguments("--proxy-bypass-list=*");
-            options.AddArgument("test-type");
-            options.AddArgument("--ignore-certificate-errors");
+            options.AddArgument("ignore-certificate-errors");
             if (HEADLESS == 1)
             {
                 options.AddArguments("--incognito", "--headless");
