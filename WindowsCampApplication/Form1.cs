@@ -21,6 +21,7 @@ namespace WindowsCampApplication
 {
     public partial class webCampingWindows : Form
     {
+        
         public static String[] userAgent = new String[] {
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.87 Safari/537.36",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36",
@@ -36,6 +37,7 @@ namespace WindowsCampApplication
 
         public static List<OrderInfo> orderList = new List<OrderInfo>();
         public static int HEADLESS = 0;
+        public static int TAB = 0;
 
         public webCampingWindows()
         {
@@ -95,14 +97,50 @@ namespace WindowsCampApplication
 
         private void campBtn_Click(object sender, EventArgs e)
         {
+            //Get tab will be launched
+            if (tabBox.Text.Equals(""))
+            {
+                // alert box
+                Console.WriteLine("Please insert number of tab");
+                return;
+            }
+            if (!tabBox.Text.All(c=>Char.IsNumber(c)))
+            {
+                // alert box
+                Console.WriteLine("Tab should be number");
+                return;
+            }
+            TAB = Int32.Parse(tabBox.Text);
+            if (TAB >= 5||TAB <= 0)
+            {
+                //alert box
+                Console.WriteLine("Number of tab should be over 0 and under 5");
+                return;
+            }
+            DateTime now = DateTime.Now;
+            
             if(orderList.Count == 0)
             {
-                // Change alert panel
+                // Alert box
                 Console.WriteLine("Need add order");
             }
             else
             {
-                LoadDriver(orderList[0]);
+                while (orderList.Count > 0)
+                {
+                    Parallel.ForEach(orderList,
+                        // Limit load page per time
+                        new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
+                        {
+                            LoadDriver(order);
+                            Console.WriteLine("Link: {0}, at Thread = {1}",
+                                order.OrderLink,
+                                Thread.CurrentThread.ManagedThreadId);
+                            orderList.Remove(order);
+                        }
+                    );
+                }
+                
             }
             
         }
