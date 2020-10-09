@@ -51,7 +51,7 @@ namespace WindowsCampApplication
         }
 
 
-        private void loadFileBtn_Click(object sender, EventArgs e)
+        private async void loadFileBtn_Click(object sender, EventArgs e)
         {
             String[] sub_array;
             var filePath = string.Empty;
@@ -95,7 +95,7 @@ namespace WindowsCampApplication
             }
         }
 
-        private void campBtn_Click(object sender, EventArgs e)
+        private async void campBtn_Click(object sender, EventArgs e)
         {
             //Get tab will be launched
             if (tabBox.Text.Equals(""))
@@ -131,48 +131,8 @@ namespace WindowsCampApplication
             }
             else
             {
-                var remove_index = new ConcurrentBag<String>();
-                string result = "";
-                //LoadDriver(orderList[2]);
-                while(orderList.Count>0)
-                {
-                    Parallel.ForEach
-                        (orderList,
-                    // Limit load page per time
-                            new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
-                            {
-                                if (order.Country.Equals("Australia"))
-                                {
-                                    result = LoadDriver(order);
-                                    remove_index.Add(order.OrderLink);
-                                    Console.WriteLine("Link: {0}, at Thread = {1}",
-                                        order.OrderLink,
-                                        Thread.CurrentThread.ManagedThreadId);
-                                }
-                                else
-                                {
-                                    result = "Wait";
-                                    Console.WriteLine("Wait");
-                                }
-                                // Update result
-                                resultTextBox.Invoke(new MethodInvoker(delegate
-                                {
-                                    resultTextBox.Text += result + Environment.NewLine;
-                                }
-                                    ));
-                                Thread.Sleep(10000);
-                            }
-                        );
-                    Console.WriteLine($"Number of order: {orderList.Count}");
-                    foreach(string link in remove_index)
-                    {
-                        Console.WriteLine(link);
-                        //string link = orderList[index].OrderLink;
-                        orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
-                        Console.WriteLine($"Remove order {link}");
-                    }
-                }
-                Console.WriteLine(remove_index.Count);
+                // Task start thread
+                await Task.Factory.StartNew(() => Process());
             }
         }
 
@@ -247,35 +207,6 @@ namespace WindowsCampApplication
             driver.Navigate().GoToUrl("https://www.nike.com/launch/");
             Console.WriteLine("Loaded NIKE Launch page");
             Thread.Sleep(10000);
-            //string locate = "";
-            //try
-            //{
-            //    locate = driver.FindElement(
-            //        By.XPath("//span[@class='d-sm-ib va-sm-m small text-color-secondary']")).Text;
-            //    Thread.Sleep(2000);
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e);
-            //    driver.Quit();
-            //}
-            //if (!locate.Equals(orderInfo.Country))
-            //{
-            //    driver.FindElement(By.XPath(
-            //    "//button[@data-qa='locale-selector-button']")).Click();
-            //    Thread.Sleep(5000);
-
-            //    driver.FindElement(By.XPath(
-            //        "//div[@class='ncss-container p6-sm p12-md u-full-width u-full-height']"));
-            //    Thread.Sleep(2000);
-            //    Console.WriteLine("Load select location");
-
-            //    driver.FindElement(By.XPath(
-            //        $"//span[contains(text(), '{orderInfo.Country}')]")).Click();
-            //    Thread.Sleep(2000);
-            //    Console.WriteLine("Load click location");
-
-            //}
 
             // Load item page
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
@@ -383,6 +314,58 @@ namespace WindowsCampApplication
                 }
             }
             return result;
+        }
+
+        private void Process()
+        {
+            var remove_order = new ConcurrentBag<String>();
+            string result = "";
+            // Wait loop
+            while (orderList.Count > 0)
+            {
+                Parallel.ForEach
+                    (orderList,
+                        // Limit load page per time
+                        new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
+                        {
+                            if (order.Country.Equals("Australia")) // change to datetime to select order to pickup and order
+                                {
+                                result = LoadDriver(order);
+                                remove_order.Add(order.OrderLink);
+                                Console.WriteLine("Link: {0}, at Thread = {1}",
+                                    order.OrderLink,
+                                    Thread.CurrentThread.ManagedThreadId);
+                                    // Update result
+                                    resultTextBox.Invoke(new MethodInvoker(delegate
+                                {
+                                    resultTextBox.Text += result + Environment.NewLine;
+                                }
+                                    ));
+                                Thread.Sleep(10000);
+                            }
+                            else
+                            {
+                                result = "Wait";
+                                Console.WriteLine("Wait");
+                                    // Update result
+                                    resultTextBox.Invoke(new MethodInvoker(delegate
+                                {
+                                    resultTextBox.Text += result + Environment.NewLine;
+                                }
+                                    ));
+                                Thread.Sleep(10000);
+                            }
+                        }
+                    );
+                Console.WriteLine($"Number of order: {orderList.Count}");
+                foreach (string link in remove_order)
+                {
+                    Console.WriteLine(link);
+                    //string link = orderList[index].OrderLink;
+                    orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
+                    Console.WriteLine($"Remove order {link}");
+                }
+            }
         }
 
         private void headlessCheckbox_CheckedChanged(object sender, EventArgs e)
