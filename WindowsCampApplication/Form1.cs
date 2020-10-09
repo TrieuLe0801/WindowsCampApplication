@@ -131,23 +131,48 @@ namespace WindowsCampApplication
             }
             else
             {
+                var remove_index = new ConcurrentBag<String>();
+                string result = "";
                 //LoadDriver(orderList[2]);
-                Parallel.ForEach(orderList,
+                while(orderList.Count>0)
+                {
+                    Parallel.ForEach
+                        (orderList,
                     // Limit load page per time
-                    new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
+                            new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
+                            {
+                                if (order.Country.Equals("Australia"))
+                                {
+                                    result = LoadDriver(order);
+                                    remove_index.Add(order.OrderLink);
+                                    Console.WriteLine("Link: {0}, at Thread = {1}",
+                                        order.OrderLink,
+                                        Thread.CurrentThread.ManagedThreadId);
+                                }
+                                else
+                                {
+                                    result = "Wait";
+                                    Console.WriteLine("Wait");
+                                }
+                                // Update result
+                                resultTextBox.Invoke(new MethodInvoker(delegate
+                                {
+                                    resultTextBox.Text += result + Environment.NewLine;
+                                }
+                                    ));
+                                Thread.Sleep(10000);
+                            }
+                        );
+                    Console.WriteLine($"Number of order: {orderList.Count}");
+                    foreach(string link in remove_index)
                     {
-                        string result = LoadDriver(order);
-                        Console.WriteLine("Link: {0}, at Thread = {1}",
-                            order.OrderLink,
-                            Thread.CurrentThread.ManagedThreadId);
-                        resultTextBox.Invoke( new MethodInvoker(delegate
-                        {
-                            resultTextBox.Text += result + Environment.NewLine;
-                        }
-                            ));
-                        Thread.Sleep(10000);
+                        Console.WriteLine(link);
+                        //string link = orderList[index].OrderLink;
+                        orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
+                        Console.WriteLine($"Remove order {link}");
                     }
-                );
+                }
+                Console.WriteLine(remove_index.Count);
             }
         }
 
@@ -197,8 +222,27 @@ namespace WindowsCampApplication
             driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
             Thread.Sleep(2000);
 
-            driver.FindElement(By.XPath("//p[@class='nav-bold' and contains(text(),'United States')]")).Click();
-            Thread.Sleep(2000);
+            IWebElement alertLocation = null;
+            try
+            {
+                alertLocation = wait.Until(SeleniumExtras.WaitHelpers.
+                    ExpectedConditions.ElementExists(By.XPath("//div[@class='hf-geomismatch-btn-container']")));
+            }
+            catch(NoSuchElementException e)
+            {
+
+            }
+
+            if (alertLocation.Displayed)
+            {
+                alertLocation.Click();
+                Thread.Sleep(2000);
+            }
+            else
+            {
+                driver.FindElement(By.XPath("//p[@class='nav-bold' and contains(text(),'United States')]")).Click();
+                Thread.Sleep(2000);
+            }
 
             driver.Navigate().GoToUrl("https://www.nike.com/launch/");
             Console.WriteLine("Loaded NIKE Launch page");
@@ -330,7 +374,6 @@ namespace WindowsCampApplication
                     {
                         result = $"Failed order {orderInfo.OrderLink}|FAILED";
                         Console.WriteLine(result);
-                        resultTextBox.Text += result + Environment.NewLine;
                         driver.Quit();
                         return result;
                     }
