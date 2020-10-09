@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Concurrent;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
+using Flurl;
 
 namespace WindowsCampApplication
 {
@@ -180,7 +181,7 @@ namespace WindowsCampApplication
         {
             string result = "";
 
-            var chromeDriverService = ChromeDriverService.CreateDefaultService();
+            var chromeDriverService = ChromeDriverService.CreateDefaultService(CHROMEDRIVER_PATH);
             chromeDriverService.HideCommandPromptWindow = true;
             ChromeOptions options = new ChromeOptions();
 
@@ -201,7 +202,7 @@ namespace WindowsCampApplication
             options.AddArguments("--allow-running-insecure-content");
             if (HEADLESS == 1)
             {
-                options.AddArguments("--incognito", "--headless");
+                options.AddArguments("--incognito", "headless");
             }
             else
             {
@@ -211,7 +212,7 @@ namespace WindowsCampApplication
             // set driver
             IWebDriver driver = new ChromeDriver(chromeDriverService, options);
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
@@ -227,7 +228,7 @@ namespace WindowsCampApplication
                 alertLocation = wait.Until(SeleniumExtras.WaitHelpers.
                     ExpectedConditions.ElementExists(By.XPath("//div[@class='hf-geomismatch-btn-container']")));
             }
-            catch(NoSuchElementException e)
+            catch(TimeoutException e)
             {
 
             }
@@ -308,18 +309,32 @@ namespace WindowsCampApplication
                     // Click button size
                     driver.FindElement(
                     By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
-                    Console.WriteLine("Load button size");
+                    Console.WriteLine("Choose button size");
                     Thread.Sleep(2000);
 
                     // Click add to cart
                     driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Click();
+                    Console.WriteLine("Click add to Cart");
                     Thread.Sleep(2000);
-                    //IWebElement CC = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(By.XPath("//button[@class='ncss-btn-primary-dark']")));
+                    
                     // CLick the cart
                     if (HEADLESS == 1)
                     {
+                        // go back Nike home
+                        driver.Navigate().GoToUrl("https://www.nike.com/");
+                        Console.WriteLine("Back to NIKE page");
+                        Thread.Sleep(15000);
+
+                        // Check alert box location
+                        driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
                         Thread.Sleep(2000);
-                        //CC.Click();
+                        string aria_code = driver.FindElement(By.XPath($"//a[@class='hf-language-menu-item ncss-col-sm-12 ncss-col-md-4 ncss-col-lg-3' " +
+                            $"and @title ='{orderInfo.Country}']")).GetAttribute("data-country");
+                        Thread.Sleep(2000);
+
+                        // Load the cart
+                        var url_cart = Url.Combine("https://www.nike.com/", aria_code, "/en/cart/");
+                        driver.Navigate().GoToUrl(url_cart);
                         Thread.Sleep(2000);
                     }
                     else
