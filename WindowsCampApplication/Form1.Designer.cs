@@ -38,6 +38,7 @@
             this.headlessCheckbox = new System.Windows.Forms.CheckBox();
             this.tabBox = new System.Windows.Forms.TextBox();
             this.tabLb = new System.Windows.Forms.Label();
+            this.stopBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // orderInforTextBox
@@ -143,11 +144,23 @@
             this.tabLb.TabIndex = 6;
             this.tabLb.Text = "Launched TAB";
             // 
+            // stopBtn
+            // 
+            this.stopBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.stopBtn.Location = new System.Drawing.Point(433, 446);
+            this.stopBtn.Name = "stopBtn";
+            this.stopBtn.Size = new System.Drawing.Size(196, 48);
+            this.stopBtn.TabIndex = 7;
+            this.stopBtn.Text = "Stop";
+            this.stopBtn.UseVisualStyleBackColor = true;
+            this.stopBtn.Click += new System.EventHandler(this.stopBtn_Click);
+            // 
             // webCampingWindows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1061, 702);
+            this.Controls.Add(this.stopBtn);
             this.Controls.Add(this.tabLb);
             this.Controls.Add(this.tabBox);
             this.Controls.Add(this.headlessCheckbox);
@@ -178,6 +191,7 @@
         private System.Windows.Forms.CheckBox headlessCheckbox;
         private System.Windows.Forms.TextBox tabBox;
         private System.Windows.Forms.Label tabLb;
+        private System.Windows.Forms.Button stopBtn;
     }
 }
 

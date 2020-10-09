@@ -40,19 +40,28 @@ namespace WindowsCampApplication
 
         public static List<OrderInfo> orderList = new List<OrderInfo>();
         public static int HEADLESS = 0;
+        public static int PROCESSING = 0;
         public static int TAB = 0;
         public static string CHROMEDRIVER_PATH = Path.Combine(Directory.GetParent(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
                 @"WindowsCampApplication");
         public static Object _lock = new Object();
+        private static CancellationTokenSource tokenSource = new CancellationTokenSource();
         public webCampingWindows()
         {
             InitializeComponent();
         }
 
 
-        private void loadFileBtn_Click(object sender, EventArgs e)
+        private async void loadFileBtn_Click(object sender, EventArgs e)
         {
+            if (PROCESSING == 1)
+            {
+                String message = "App is processing...";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                return;
+            }
             String[] sub_array;
             var filePath = string.Empty;
             var fileContent = string.Empty;
@@ -95,14 +104,23 @@ namespace WindowsCampApplication
             }
         }
 
-        private void campBtn_Click(object sender, EventArgs e)
+        private async void campBtn_Click(object sender, EventArgs e)
         {
+            if(PROCESSING == 1)
+            {
+                String message = "App is processing...";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                return;
+            }
+            PROCESSING = 1;
             //Get tab will be launched
             if (tabBox.Text.Equals(""))
             {
                 String message = "Please insert number of tab";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                PROCESSING = 0;
                 return;
             }
             if (!tabBox.Text.All(c => Char.IsNumber(c)))
@@ -110,6 +128,7 @@ namespace WindowsCampApplication
                 String message = "Tab should be number";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                PROCESSING = 0;
                 return;
             }
             TAB = Int32.Parse(tabBox.Text);
@@ -119,6 +138,7 @@ namespace WindowsCampApplication
                 String message = "Number of tab should be over 0 and under 5";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                PROCESSING = 0;
                 return;
             }
             DateTime now = DateTime.Now;
@@ -128,51 +148,27 @@ namespace WindowsCampApplication
                 String message = "Need add order";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                PROCESSING = 0;
             }
             else
             {
-                var remove_index = new ConcurrentBag<String>();
-                string result = "";
-                //LoadDriver(orderList[2]);
-                while(orderList.Count>0)
+                List<string> ordered;
+                // Wait loop
+                while (orderList.Count > 0)
                 {
-                    Parallel.ForEach
-                        (orderList,
-                    // Limit load page per time
-                            new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
-                            {
-                                if (order.Country.Equals("Australia"))
-                                {
-                                    result = LoadDriver(order);
-                                    remove_index.Add(order.OrderLink);
-                                    Console.WriteLine("Link: {0}, at Thread = {1}",
-                                        order.OrderLink,
-                                        Thread.CurrentThread.ManagedThreadId);
-                                }
-                                else
-                                {
-                                    result = "Wait";
-                                    Console.WriteLine("Wait");
-                                }
-                                // Update result
-                                resultTextBox.Invoke(new MethodInvoker(delegate
-                                {
-                                    resultTextBox.Text += result + Environment.NewLine;
-                                }
-                                    ));
-                                Thread.Sleep(10000);
-                            }
-                        );
-                    Console.WriteLine($"Number of order: {orderList.Count}");
-                    foreach(string link in remove_index)
+                    var t = new Task(() => Process(), tokenSource.Token);
+                    // Task start thread
+                    t.Start();
+                    await t;
+                    Console.WriteLine($"Order list count : {orderList.Count}");
+                    // Check when stop threads
+                    if (PROCESSING==0)
                     {
-                        Console.WriteLine(link);
-                        //string link = orderList[index].OrderLink;
-                        orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
-                        Console.WriteLine($"Remove order {link}");
+                        PROCESSING = 0;
+                        Console.WriteLine("Stop the threads");
+                        break;
                     }
                 }
-                Console.WriteLine(remove_index.Count);
             }
         }
 
@@ -247,35 +243,6 @@ namespace WindowsCampApplication
             driver.Navigate().GoToUrl("https://www.nike.com/launch/");
             Console.WriteLine("Loaded NIKE Launch page");
             Thread.Sleep(10000);
-            //string locate = "";
-            //try
-            //{
-            //    locate = driver.FindElement(
-            //        By.XPath("//span[@class='d-sm-ib va-sm-m small text-color-secondary']")).Text;
-            //    Thread.Sleep(2000);
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e);
-            //    driver.Quit();
-            //}
-            //if (!locate.Equals(orderInfo.Country))
-            //{
-            //    driver.FindElement(By.XPath(
-            //    "//button[@data-qa='locale-selector-button']")).Click();
-            //    Thread.Sleep(5000);
-
-            //    driver.FindElement(By.XPath(
-            //        "//div[@class='ncss-container p6-sm p12-md u-full-width u-full-height']"));
-            //    Thread.Sleep(2000);
-            //    Console.WriteLine("Load select location");
-
-            //    driver.FindElement(By.XPath(
-            //        $"//span[contains(text(), '{orderInfo.Country}')]")).Click();
-            //    Thread.Sleep(2000);
-            //    Console.WriteLine("Load click location");
-
-            //}
 
             // Load item page
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
@@ -385,6 +352,64 @@ namespace WindowsCampApplication
             return result;
         }
 
+        private void Process()
+        {
+            ParallelOptions parlOps = new ParallelOptions();
+            var token = tokenSource.Token;
+            parlOps.CancellationToken = token;
+            parlOps.MaxDegreeOfParallelism = TAB;
+            var remove_order = new ConcurrentBag<string>();
+            string result = "";
+            try
+            {
+                Parallel.ForEach
+                (orderList,
+                    // Limit load page per time
+                    parlOps, order =>
+                    {
+                        if (order.Country.Equals("Australia")) // change to datetime to select order to pickup and order
+                        {
+                            result = LoadDriver(order);
+                            remove_order.Add(order.OrderLink);
+                            Console.WriteLine("Link: {0}, at Thread = {1}",
+                                order.OrderLink,
+                                Thread.CurrentThread.ManagedThreadId);
+                            // Update result
+                            resultTextBox.Invoke(new MethodInvoker(delegate
+                            {
+                                resultTextBox.Text += result + Environment.NewLine;
+                            }
+                            ));
+                            Thread.Sleep(10000);
+                        }
+                        else
+                        {
+                            result = "Wait";
+                            Console.WriteLine("Wait");
+                            // Update result
+                            resultTextBox.Invoke(new MethodInvoker(delegate
+                            {
+                                resultTextBox.Text += result + Environment.NewLine;
+                            }
+                            ));
+                            Thread.Sleep(10000);
+                        }
+                    }
+                );
+                Console.WriteLine($"Number of order: {orderList.Count}");
+                foreach (string link in remove_order)
+                {
+                    Console.WriteLine(link);
+                    orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
+                    Console.WriteLine($"Remove order {link}");
+                }
+            }
+            catch(OperationCanceledException ex)
+            {
+
+            }
+        }
+
         private void headlessCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             if (headlessCheckbox.Checked)
@@ -395,6 +420,12 @@ namespace WindowsCampApplication
             {
                 HEADLESS = 0;
             }
+        }
+
+        private async void stopBtn_Click(object sender, EventArgs e)
+        {
+            tokenSource.Cancel();
+            PROCESSING = 0;
         }
     }
 }
