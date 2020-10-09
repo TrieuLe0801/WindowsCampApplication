@@ -114,6 +114,11 @@ namespace WindowsCampApplication
                 return;
             }
             PROCESSING = 1;
+            if (tokenSource.Token.IsCancellationRequested)
+            {
+                tokenSource.Dispose();
+                tokenSource = new CancellationTokenSource();
+            }
             //Get tab will be launched
             if (tabBox.Text.Equals(""))
             {
@@ -156,19 +161,17 @@ namespace WindowsCampApplication
                 // Wait loop
                 while (orderList.Count > 0)
                 {
-                    var t = new Task(() => Process(), tokenSource.Token);
-                    // Task start thread
-                    t.Start();
+                    //start thread
+                    var t = Task.Run(() => Process(), tokenSource.Token);
                     await t;
                     Console.WriteLine($"Order list count : {orderList.Count}");
                     // Check when stop threads
-                    if (PROCESSING==0)
+                    if (tokenSource.Token.IsCancellationRequested)
                     {
-                        PROCESSING = 0;
-                        Console.WriteLine("Stop the threads");
                         break;
                     }
                 }
+                PROCESSING = 0;
             }
         }
 
@@ -424,7 +427,11 @@ namespace WindowsCampApplication
 
         private async void stopBtn_Click(object sender, EventArgs e)
         {
-            tokenSource.Cancel();
+            await Task.Factory.StartNew(() =>
+            {
+                tokenSource.Cancel();
+            });
+            
             PROCESSING = 0;
         }
     }
