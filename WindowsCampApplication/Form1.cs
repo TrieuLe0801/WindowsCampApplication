@@ -145,7 +145,7 @@ namespace WindowsCampApplication
                             resultTextBox.Text += result + Environment.NewLine;
                         }
                             ));
-                        Thread.Sleep(15000);
+                        Thread.Sleep(10000);
                     }
                 );
             }
@@ -332,6 +332,7 @@ namespace WindowsCampApplication
                         Console.WriteLine(result);
                         resultTextBox.Text += result + Environment.NewLine;
                         driver.Quit();
+                        return result;
                     }
                     result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
                     Console.WriteLine(result);
