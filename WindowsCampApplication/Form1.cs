@@ -352,6 +352,7 @@ namespace WindowsCampApplication
                     driver.Quit();
                 }
             }
+            orderList.Remove(orderInfo);
             return result;
         }
 
@@ -399,13 +400,13 @@ namespace WindowsCampApplication
                         }
                     }
                 );
-                Console.WriteLine($"Number of order: {orderList.Count}");
-                foreach (string link in remove_order)
-                {
-                    Console.WriteLine(link);
-                    orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
-                    Console.WriteLine($"Remove order {link}");
-                }
+                //Console.WriteLine($"Number of order: {orderList.Count}");
+                //foreach (string link in remove_order)
+                //{
+                //    Console.WriteLine(link);
+                //    orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
+                //    Console.WriteLine($"Remove order {link}");
+                //}
             }
             catch(OperationCanceledException ex)
             {
