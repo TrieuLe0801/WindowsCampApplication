@@ -40,11 +40,13 @@ namespace WindowsCampApplication
 
         public static List<OrderInfo> orderList = new List<OrderInfo>();
         public static int HEADLESS = 0;
+        public static int PROCESSING = 0;
         public static int TAB = 0;
         public static string CHROMEDRIVER_PATH = Path.Combine(Directory.GetParent(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
                 @"WindowsCampApplication");
         public static Object _lock = new Object();
+        private static CancellationTokenSource tokenSource = new CancellationTokenSource();
         public webCampingWindows()
         {
             InitializeComponent();
@@ -53,6 +55,13 @@ namespace WindowsCampApplication
 
         private async void loadFileBtn_Click(object sender, EventArgs e)
         {
+            if (PROCESSING == 1)
+            {
+                String message = "App is processing...";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                return;
+            }
             String[] sub_array;
             var filePath = string.Empty;
             var fileContent = string.Empty;
@@ -97,12 +106,21 @@ namespace WindowsCampApplication
 
         private async void campBtn_Click(object sender, EventArgs e)
         {
+            if(PROCESSING == 1)
+            {
+                String message = "App is processing...";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                return;
+            }
+            PROCESSING = 1;
             //Get tab will be launched
             if (tabBox.Text.Equals(""))
             {
                 String message = "Please insert number of tab";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                PROCESSING = 0;
                 return;
             }
             if (!tabBox.Text.All(c => Char.IsNumber(c)))
@@ -110,6 +128,7 @@ namespace WindowsCampApplication
                 String message = "Tab should be number";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                PROCESSING = 0;
                 return;
             }
             TAB = Int32.Parse(tabBox.Text);
@@ -119,6 +138,7 @@ namespace WindowsCampApplication
                 String message = "Number of tab should be over 0 and under 5";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                PROCESSING = 0;
                 return;
             }
             DateTime now = DateTime.Now;
@@ -128,11 +148,27 @@ namespace WindowsCampApplication
                 String message = "Need add order";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                PROCESSING = 0;
             }
             else
             {
-                // Task start thread
-                await Task.Factory.StartNew(() => Process());
+                List<string> ordered;
+                // Wait loop
+                while (orderList.Count > 0)
+                {
+                    var t = new Task(() => Process(), tokenSource.Token);
+                    // Task start thread
+                    t.Start();
+                    await t;
+                    Console.WriteLine($"Order list count : {orderList.Count}");
+                    // Check when stop threads
+                    if (PROCESSING==0)
+                    {
+                        PROCESSING = 0;
+                        Console.WriteLine("Stop the threads");
+                        break;
+                    }
+                }
             }
         }
 
@@ -318,53 +354,59 @@ namespace WindowsCampApplication
 
         private void Process()
         {
-            var remove_order = new ConcurrentBag<String>();
+            ParallelOptions parlOps = new ParallelOptions();
+            var token = tokenSource.Token;
+            parlOps.CancellationToken = token;
+            parlOps.MaxDegreeOfParallelism = TAB;
+            var remove_order = new ConcurrentBag<string>();
             string result = "";
-            // Wait loop
-            while (orderList.Count > 0)
+            try
             {
                 Parallel.ForEach
-                    (orderList,
-                        // Limit load page per time
-                        new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
+                (orderList,
+                    // Limit load page per time
+                    parlOps, order =>
+                    {
+                        if (order.Country.Equals("Australia")) // change to datetime to select order to pickup and order
                         {
-                            if (order.Country.Equals("Australia")) // change to datetime to select order to pickup and order
-                                {
-                                result = LoadDriver(order);
-                                remove_order.Add(order.OrderLink);
-                                Console.WriteLine("Link: {0}, at Thread = {1}",
-                                    order.OrderLink,
-                                    Thread.CurrentThread.ManagedThreadId);
-                                    // Update result
-                                    resultTextBox.Invoke(new MethodInvoker(delegate
-                                {
-                                    resultTextBox.Text += result + Environment.NewLine;
-                                }
-                                    ));
-                                Thread.Sleep(10000);
-                            }
-                            else
+                            result = LoadDriver(order);
+                            remove_order.Add(order.OrderLink);
+                            Console.WriteLine("Link: {0}, at Thread = {1}",
+                                order.OrderLink,
+                                Thread.CurrentThread.ManagedThreadId);
+                            // Update result
+                            resultTextBox.Invoke(new MethodInvoker(delegate
                             {
-                                result = "Wait";
-                                Console.WriteLine("Wait");
-                                    // Update result
-                                    resultTextBox.Invoke(new MethodInvoker(delegate
-                                {
-                                    resultTextBox.Text += result + Environment.NewLine;
-                                }
-                                    ));
-                                Thread.Sleep(10000);
+                                resultTextBox.Text += result + Environment.NewLine;
                             }
+                            ));
+                            Thread.Sleep(10000);
                         }
-                    );
+                        else
+                        {
+                            result = "Wait";
+                            Console.WriteLine("Wait");
+                            // Update result
+                            resultTextBox.Invoke(new MethodInvoker(delegate
+                            {
+                                resultTextBox.Text += result + Environment.NewLine;
+                            }
+                            ));
+                            Thread.Sleep(10000);
+                        }
+                    }
+                );
                 Console.WriteLine($"Number of order: {orderList.Count}");
                 foreach (string link in remove_order)
                 {
                     Console.WriteLine(link);
-                    //string link = orderList[index].OrderLink;
                     orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
                     Console.WriteLine($"Remove order {link}");
                 }
+            }
+            catch(OperationCanceledException ex)
+            {
+
             }
         }
 
@@ -378,6 +420,12 @@ namespace WindowsCampApplication
             {
                 HEADLESS = 0;
             }
+        }
+
+        private async void stopBtn_Click(object sender, EventArgs e)
+        {
+            tokenSource.Cancel();
+            PROCESSING = 0;
         }
     }
 }
