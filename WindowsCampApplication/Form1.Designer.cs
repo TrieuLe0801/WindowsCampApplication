@@ -36,6 +36,8 @@
             this.loadFileBtn = new System.Windows.Forms.Button();
             this.campBtn = new System.Windows.Forms.Button();
             this.headlessCheckbox = new System.Windows.Forms.CheckBox();
+            this.tabBox = new System.Windows.Forms.TextBox();
+            this.tabLb = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // orderInforTextBox
@@ -113,19 +115,41 @@
             // headlessCheckbox
             // 
             this.headlessCheckbox.AutoSize = true;
-            this.headlessCheckbox.Location = new System.Drawing.Point(484, 397);
+            this.headlessCheckbox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.headlessCheckbox.Location = new System.Drawing.Point(485, 399);
             this.headlessCheckbox.Name = "headlessCheckbox";
-            this.headlessCheckbox.Size = new System.Drawing.Size(89, 21);
+            this.headlessCheckbox.Size = new System.Drawing.Size(102, 24);
             this.headlessCheckbox.TabIndex = 4;
             this.headlessCheckbox.Text = "Headless";
             this.headlessCheckbox.UseVisualStyleBackColor = true;
             this.headlessCheckbox.CheckedChanged += new System.EventHandler(this.headlessCheckbox_CheckedChanged);
+            // 
+            // tabBox
+            // 
+            this.tabBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabBox.Location = new System.Drawing.Point(581, 288);
+            this.tabBox.Name = "tabBox";
+            this.tabBox.Size = new System.Drawing.Size(48, 27);
+            this.tabBox.TabIndex = 5;
+            this.tabBox.Text = "3";
+            // 
+            // tabLb
+            // 
+            this.tabLb.AutoSize = true;
+            this.tabLb.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabLb.Location = new System.Drawing.Point(429, 291);
+            this.tabLb.Name = "tabLb";
+            this.tabLb.Size = new System.Drawing.Size(132, 20);
+            this.tabLb.TabIndex = 6;
+            this.tabLb.Text = "Launched TAB";
             // 
             // webCampingWindows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1061, 702);
+            this.Controls.Add(this.tabLb);
+            this.Controls.Add(this.tabBox);
             this.Controls.Add(this.headlessCheckbox);
             this.Controls.Add(this.campBtn);
             this.Controls.Add(this.loadFileBtn);
@@ -152,6 +176,8 @@
         private System.Windows.Forms.Button loadFileBtn;
         private System.Windows.Forms.Button campBtn;
         private System.Windows.Forms.CheckBox headlessCheckbox;
+        private System.Windows.Forms.TextBox tabBox;
+        private System.Windows.Forms.Label tabLb;
     }
 }
 
