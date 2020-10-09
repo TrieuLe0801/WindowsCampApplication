@@ -131,26 +131,47 @@ namespace WindowsCampApplication
             }
             else
             {
-                var remove_index = new ConcurrentBag<int>();
-                    //LoadDriver(orderList[2]);
-                    Parallel.ForEach(orderList,
-                       // Limit load page per time
-                       new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
-                       {
-                           string result = LoadDriver(order);
-                           remove_index.Add(orderList.FindIndex(x => x.Equals(order)));
-                           Console.WriteLine("Link: {0}, at Thread = {1}",
-                               order.OrderLink,
-                               Thread.CurrentThread.ManagedThreadId);
-                           // Update result
-                           resultTextBox.Invoke(new MethodInvoker(delegate
-                           {
-                               resultTextBox.Text += result + Environment.NewLine;
-                           }
-                               ));
-                           Thread.Sleep(10000);
-                       }
-                                    );
+                var remove_index = new ConcurrentBag<String>();
+                string result = "";
+                //LoadDriver(orderList[2]);
+                while(orderList.Count>0)
+                {
+                    Parallel.ForEach
+                        (orderList,
+                    // Limit load page per time
+                            new ParallelOptions { MaxDegreeOfParallelism = TAB }, order =>
+                            {
+                                if (order.Country.Equals("Australia"))
+                                {
+                                    result = LoadDriver(order);
+                                    remove_index.Add(order.OrderLink);
+                                    Console.WriteLine("Link: {0}, at Thread = {1}",
+                                        order.OrderLink,
+                                        Thread.CurrentThread.ManagedThreadId);
+                                }
+                                else
+                                {
+                                    result = "Wait";
+                                    Console.WriteLine("Wait");
+                                }
+                                // Update result
+                                resultTextBox.Invoke(new MethodInvoker(delegate
+                                {
+                                    resultTextBox.Text += result + Environment.NewLine;
+                                }
+                                    ));
+                                Thread.Sleep(10000);
+                            }
+                        );
+                    Console.WriteLine($"Number of order: {orderList.Count}");
+                    foreach(string link in remove_index)
+                    {
+                        Console.WriteLine(link);
+                        //string link = orderList[index].OrderLink;
+                        orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
+                        Console.WriteLine($"Remove order {link}");
+                    }
+                }
                 Console.WriteLine(remove_index.Count);
             }
         }
