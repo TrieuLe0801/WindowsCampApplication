@@ -98,7 +98,7 @@ namespace WindowsCampApplication
                         sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
                             System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
                         Console.WriteLine(sub_order.Time.GetType());
-                        sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
+                        sub_order.Locate = Regex.Replace(info[3], @"\t|\n|\r", "");
                         orderList.Add(sub_order);
                     }
                 }
@@ -329,7 +329,7 @@ namespace WindowsCampApplication
                         driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
                         Thread.Sleep(2000);
                         string aria_code = driver.FindElement(By.XPath($"//a[@class='hf-language-menu-item ncss-col-sm-12 ncss-col-md-4 ncss-col-lg-3' " +
-                            $"and @title ='{orderInfo.Country}']")).GetAttribute("data-country");
+                            $"and @title ='{orderInfo.Locate}']")).GetAttribute("data-country");
                         Thread.Sleep(2000);
 
                         // Load the cart
@@ -390,7 +390,7 @@ namespace WindowsCampApplication
                         //var info = TimeZoneInfo.FindSystemTimeZoneById($"{order.Country} Standard Time");
                         //DateTimeOffset localDateTime = TimeZoneInfo.ConvertTime(now, info);
                         //int compare_datetime = DateTimeOffset.Compare(localDateTime, order.Time);
-                        if (order.Country.Equals("Australia")) // change to datetime to select order to pickup and order
+                        if (order.Locate.Equals("Australia")) // change to datetime to select order to pickup and order
                         {
                             result = LoadDriver(order);
                             remove_order.Add(order.OrderLink);
@@ -407,7 +407,7 @@ namespace WindowsCampApplication
                         }
                         else
                         {
-                            result = $"Wait until {order.Time} of {order.Country}";
+                            result = $"Wait until {order.Time} of {order.Locate}";
                             Console.WriteLine(result);
                             // Update result
                             resultTextBox.Invoke(new MethodInvoker(delegate
@@ -458,6 +458,7 @@ namespace WindowsCampApplication
         private DateTime ConvertLocalDateTime(string country)
         {
             var datetimeCv = DateTime.Now;
+
             return datetimeCv;
         }
     }
