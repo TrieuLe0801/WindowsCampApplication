@@ -23,6 +23,7 @@ using Flurl;
 using System.Collections.ObjectModel;
 using NodaTime.TimeZones;
 using NodaTime;
+using TimeZoneConverter;
 
 namespace WindowsCampApplication
 {
@@ -51,11 +52,28 @@ namespace WindowsCampApplication
                 @"WindowsCampApplication");
         public static Object _lock = new Object();
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
+        public static List<TimezoneCode> timezoneCodeList = new List<TimezoneCode>();
         public webCampingWindows()
         {
+            String[] sub_array;
             InitializeComponent();
-        }
 
+            // Get time zone code initial
+            var zoneCodeFilePath = Path.Combine(CHROMEDRIVER_PATH, "timezoneCode.txt");
+            using (StreamReader reader = new StreamReader(zoneCodeFilePath))
+            {
+                var content = reader.ReadToEnd();
+                sub_array = content.Split('\n');
+            }
+            foreach(string zone in sub_array)
+            {
+                TimezoneCode sub_tz = new TimezoneCode();
+                String[] info = zone.Split('|');
+                sub_tz.ZoneCode = info[0];
+                sub_tz.ZoneCode = Regex.Replace(info[1], @"\t|\n|\r", ""); 
+                timezoneCodeList.Add(sub_tz);
+            }
+        }
 
         private async void loadFileBtn_Click(object sender, EventArgs e)
         {
@@ -100,8 +118,7 @@ namespace WindowsCampApplication
                         sub_order.Size = info[1];
                         sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
                             System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
-                        Console.WriteLine(sub_order.Time.GetType());
-                        sub_order.Locate = Regex.Replace(info[3], @"\t|\n|\r", "");
+                        sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
                         orderList.Add(sub_order);
                     }
                 }
@@ -175,6 +192,9 @@ namespace WindowsCampApplication
                         break;
                     }
                 }
+                String message = "Finsh Process";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
                 PROCESSING = 0;
             }
         }
@@ -332,7 +352,7 @@ namespace WindowsCampApplication
                         driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
                         Thread.Sleep(2000);
                         string aria_code = driver.FindElement(By.XPath($"//a[@class='hf-language-menu-item ncss-col-sm-12 ncss-col-md-4 ncss-col-lg-3' " +
-                            $"and @title ='{orderInfo.Locate}']")).GetAttribute("data-country");
+                            $"and @title ='{orderInfo.Country}']")).GetAttribute("data-country");
                         Thread.Sleep(2000);
 
                         // Load the cart
@@ -387,9 +407,9 @@ namespace WindowsCampApplication
                 Parallel.ForEach
                 (orderList,
                     // Limit load page per time
-                    parlOps, order =>
+                    parlOps, (order,state) =>
                     {
-                        DateTime present = ConvertLocalDateTime(order.Locate);
+                        DateTime present = ConvertLocalDateTime(order);
                         int compare_datetime = DateTime.Compare(present, order.Time);
                         if (compare_datetime>=0) // change to datetime to select order to pickup and order
                         {
@@ -408,7 +428,7 @@ namespace WindowsCampApplication
                         }
                         else
                         {
-                            result = $"Wait until {order.Time} of {order.Locate}";
+                            result = $"Wait until {order.Time} of {order.Country}";
                             Console.WriteLine(result);
                             // Update result
                             resultTextBox.Invoke(new MethodInvoker(delegate
@@ -448,15 +468,22 @@ namespace WindowsCampApplication
 
         private async void stopBtn_Click(object sender, EventArgs e)
         {
-            await Task.Factory.StartNew(() =>
+            String message = "Application is Running, do you want to stop?";
+            MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+            DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Question);
+            if(result == DialogResult.Yes)
             {
-                tokenSource.Cancel();
-            });
+                await Task.Factory.StartNew(() =>
+                {
+                    tokenSource.Cancel();
+                });
+
+                PROCESSING = 0;
+            }
             
-            PROCESSING = 0;
         }
 
-        private DateTime ConvertLocalDateTime(string locate)
+        private DateTime ConvertLocalDateTime(OrderInfo order)
         {
             var WindowsTimes = new Dictionary<string, string>()
                 {
@@ -588,7 +615,7 @@ namespace WindowsCampApplication
 
             // Get Location time
             var location = TzdbDateTimeZoneSource.Default.ZoneLocations
-                 .FirstOrDefault(l => l.CountryName.Contains(locate));
+                 .FirstOrDefault(l => l.CountryName.Contains(order.Country));
 
             // Get Zone
             string zoneId = location.ZoneId;
