@@ -95,8 +95,9 @@ namespace WindowsCampApplication
                         String[] info = s.Split('|');
                         sub_order.OrderLink = info[0];
                         sub_order.Size = info[1];
-                        sub_order.Time = Convert.ToDateTime(info[2],
-                            System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat);
+                        sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
+                            System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
+                        Console.WriteLine(sub_order.Time.GetType());
                         sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
                         orderList.Add(sub_order);
                     }
@@ -147,7 +148,6 @@ namespace WindowsCampApplication
                 PROCESSING = 0;
                 return;
             }
-            DateTime now = DateTime.Now;
 
             if (orderList.Count == 0)
             {
@@ -386,6 +386,10 @@ namespace WindowsCampApplication
                     // Limit load page per time
                     parlOps, order =>
                     {
+                        //DateTimeOffset now = DateTimeOffset.Now;
+                        //var info = TimeZoneInfo.FindSystemTimeZoneById($"{order.Country} Standard Time");
+                        //DateTimeOffset localDateTime = TimeZoneInfo.ConvertTime(now, info);
+                        //int compare_datetime = DateTimeOffset.Compare(localDateTime, order.Time);
                         if (order.Country.Equals("Australia")) // change to datetime to select order to pickup and order
                         {
                             result = LoadDriver(order);
@@ -403,8 +407,8 @@ namespace WindowsCampApplication
                         }
                         else
                         {
-                            result = "Wait";
-                            Console.WriteLine("Wait");
+                            result = $"Wait until {order.Time} of {order.Country}";
+                            Console.WriteLine(result);
                             // Update result
                             resultTextBox.Invoke(new MethodInvoker(delegate
                             {
@@ -449,6 +453,12 @@ namespace WindowsCampApplication
             });
             
             PROCESSING = 0;
+        }
+
+        private DateTime ConvertLocalDateTime(string country)
+        {
+            var datetimeCv = DateTime.Now;
+            return datetimeCv;
         }
     }
 }
