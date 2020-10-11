@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace WindowsCampApplication.Model
 {
-    public class TimezoneCode
+    public class CountryInfo
     {
-        public string ZoneCode { get; set; }
+        public string CountryCode { get; set; }
         public string CountryName { get; set; }
     }
 }
