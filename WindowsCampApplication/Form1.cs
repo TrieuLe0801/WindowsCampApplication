@@ -24,6 +24,7 @@ using System.Collections.ObjectModel;
 using NodaTime.TimeZones;
 using NodaTime;
 using TimeZoneConverter;
+using OpenQA.Selenium.Interactions;
 
 namespace WindowsCampApplication
 {
@@ -213,19 +214,23 @@ namespace WindowsCampApplication
             int agent = rand.Next(0, userAgent.Length);
             options.AddArgument("--user-agent=" + userAgent[agent]);
             options.AddArguments("--disable-gpu");
-            //options.AddArguments("--no-sandbox");
-            //options.AddArguments("--silent");
-            //options.AddArguments("--disable-web-security");
+            //options.AddArguments("--window-size=1920,1080");
+            options.AddArguments("--disable-gpu");
             options.AddArguments("--disable-extensions");
-            //options.AddArguments("--log-level=3");
-            //options.AddArguments("--proxy-server='direct://'");
-            //options.AddArguments("--proxy-bypass-list=*");
-            //options.AddArgument("test-type");
+            options.AddUserProfilePreference("disable-popup-blocking", "true");
+            options.AddArguments("--proxy-server='direct://'");
+            options.AddArguments("--proxy-bypass-list=*");
+            //options.AddArguments("--start-maximized");
+            options.AddArguments("--no-sandbox");
+            options.AddArguments("--silent");
+            options.AddArguments("--disable-web-security");
+            options.AddArguments("--log-level=3");
+            options.AddArgument("--test-type");
             options.AddArgument("--ignore-certificate-errors");
             options.AddArguments("--allow-running-insecure-content");
             if (HEADLESS == 1)
             {
-                options.AddArguments("--incognito", "headless");
+                options.AddArguments("--incognito", "--headless", "--window-size=1280,1024", "--start-maximized");
             }
             else
             {
@@ -234,8 +239,8 @@ namespace WindowsCampApplication
 
             // set driver
             IWebDriver driver = new ChromeDriver(chromeDriverService, options);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+            //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
@@ -344,54 +349,37 @@ namespace WindowsCampApplication
                     // Click button size
                     driver.FindElement(
                     By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
-                    Console.WriteLine("Choose button size");
+                    Console.WriteLine("Choose button size "+ driver.FindElement(
+                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Text);
                     Thread.Sleep(2000);
 
                     // Click add to cart
                     driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Click();
-                    Console.WriteLine("Click add to Cart");
-                    Thread.Sleep(2000);
-                    
+                    Console.WriteLine("Click add to Cart "+ driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
+                    Thread.Sleep(3000);
+
                     // CLick the cart
                     if (HEADLESS == 1)
                     {
-                        //// go back Nike home
-                        //driver.Navigate().GoToUrl("https://www.nike.com/");
-                        //Console.WriteLine("Back to NIKE page");
-                        //Thread.Sleep(15000);
-
-                        //// Check alert box location
-                        //driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
-                        //Thread.Sleep(2000);
-                        //string aria_code = driver.FindElement(By.XPath($"//a[@class='hf-language-menu-item ncss-col-sm-12 ncss-col-md-4 ncss-col-lg-3' " +
-                        //    $"and @title ='{orderInfo.Country}']")).GetAttribute("data-country");
-                        //Thread.Sleep(2000);
-
-                        //// Load the cart
-                        //var url_cart = Url.Combine("https://www.nike.com/", aria_code, "/en/cart/");
-                        //driver.Navigate().GoToUrl(url_cart);
-                        //Thread.Sleep(2000);
-                        try
-                        {
-                            if(driver.FindElement(By.XPath("//li[@data-qa='top-nav-cart-link']")).Enabled);
-                                Console.WriteLine("Find out cart");
-                        }catch(NoSuchElementException ex)
-                        {
-                            Console.WriteLine(ex);
-                        }
-                        driver.FindElement(By.XPath("//li[@data-qa='top-nav-cart-link']")).Click();
                         Thread.Sleep(2000);
-                        Console.WriteLine("Click cart to load");
+                        var li_All = driver.FindElements(By.XPath("//ul[@class='right-nav prl7-sm ']/li"));
+                        var li_cart = li_All.FirstOrDefault(i => i.GetAttribute("data-qa") == "top-nav-cart-link").
+                            FindElement(By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent prl3-sm " +
+                            "pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']"));
+                        Console.WriteLine("Load the cart");
+                        li_cart.Click();
+                        Thread.Sleep(2000);
                     }
                     else
                     {
+                        // Click to check the cart
                         driver.FindElement(
                            By.XPath("//a[" +
                            "@class='hover-color-black text-color-grey bg-transparent " +
                            "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
+                        Console.WriteLine("Load the cart");
                         Thread.Sleep(2000);
                     }
-                    Console.WriteLine("Load the cart");
 
                     // Click to checkout
                     try
@@ -510,8 +498,6 @@ namespace WindowsCampApplication
                     {
                         tokenSource.Cancel();
                     });
-
-                    PROCESSING = 0;
                 }
             }
         }
