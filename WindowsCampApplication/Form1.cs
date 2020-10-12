@@ -20,6 +20,11 @@ using System.Collections.Concurrent;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 using Flurl;
+using System.Collections.ObjectModel;
+using NodaTime.TimeZones;
+using NodaTime;
+using TimeZoneConverter;
+using OpenQA.Selenium.Interactions;
 
 namespace WindowsCampApplication
 {
@@ -48,11 +53,28 @@ namespace WindowsCampApplication
                 @"WindowsCampApplication");
         public static Object _lock = new Object();
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
+        public static List<CountryInfo> countryCodeList = new List<CountryInfo>();
         public webCampingWindows()
         {
+            String[] sub_array;
             InitializeComponent();
-        }
 
+            // Get time zone code initial
+            var countryCodeFilePath = Path.Combine(CHROMEDRIVER_PATH, "timezoneCode.txt");
+            using (StreamReader reader = new StreamReader(countryCodeFilePath))
+            {
+                var content = reader.ReadToEnd();
+                sub_array = content.Split('\n');
+            }
+            foreach(string zone in sub_array)
+            {
+                CountryInfo sub_tz = new CountryInfo();
+                String[] info = zone.Split('|');
+                sub_tz.CountryCode = info[0];
+                sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", ""); 
+                countryCodeList.Add(sub_tz);
+            }
+        }
 
         private async void loadFileBtn_Click(object sender, EventArgs e)
         {
@@ -95,8 +117,8 @@ namespace WindowsCampApplication
                         String[] info = s.Split('|');
                         sub_order.OrderLink = info[0];
                         sub_order.Size = info[1];
-                        sub_order.Time = Convert.ToDateTime(info[2],
-                            System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat);
+                        sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
+                            System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
                         sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
                         orderList.Add(sub_order);
                     }
@@ -147,7 +169,6 @@ namespace WindowsCampApplication
                 PROCESSING = 0;
                 return;
             }
-            DateTime now = DateTime.Now;
 
             if (orderList.Count == 0)
             {
@@ -172,6 +193,9 @@ namespace WindowsCampApplication
                         break;
                     }
                 }
+                String message = "Finsh Process";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
                 PROCESSING = 0;
             }
         }
@@ -190,19 +214,23 @@ namespace WindowsCampApplication
             int agent = rand.Next(0, userAgent.Length);
             options.AddArgument("--user-agent=" + userAgent[agent]);
             options.AddArguments("--disable-gpu");
-            //options.AddArguments("--no-sandbox");
-            //options.AddArguments("--silent");
-            //options.AddArguments("--disable-web-security");
+            //options.AddArguments("--window-size=1920,1080");
+            options.AddArguments("--disable-gpu");
             options.AddArguments("--disable-extensions");
-            //options.AddArguments("--log-level=3");
-            //options.AddArguments("--proxy-server='direct://'");
-            //options.AddArguments("--proxy-bypass-list=*");
-            //options.AddArgument("test-type");
+            //options.AddUserProfilePreference("disable-popup-blocking", "true");
+            options.AddArguments("--proxy-server='direct://'");
+            options.AddArguments("--proxy-bypass-list=*");
+            //options.AddArguments("--start-maximized");
+            options.AddArguments("--no-sandbox");
+            options.AddArguments("--silent");
+            options.AddArguments("--disable-web-security");
+            options.AddArguments("--log-level=3");
+            options.AddArgument("--test-type");
             options.AddArgument("--ignore-certificate-errors");
             options.AddArguments("--allow-running-insecure-content");
             if (HEADLESS == 1)
             {
-                options.AddArguments("--incognito", "headless");
+                options.AddArguments("--incognito", "--headless", "--window-size=1280,1024", "--start-maximized");
             }
             else
             {
@@ -211,12 +239,24 @@ namespace WindowsCampApplication
 
             // set driver
             IWebDriver driver = new ChromeDriver(chromeDriverService, options);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+            //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
             Thread.Sleep(15000);
+
+            try
+            {
+                IWebElement closePanel = driver.FindElement(By.XPath("//button[@class='pre-modal-btn-close']"));
+                if(closePanel.Displayed)
+                    closePanel.Click();
+                    Console.WriteLine("Close the alert");
+            }
+            catch (NoSuchElementException ex)
+            {
+
+            }
 
             // get location
             driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
@@ -309,44 +349,49 @@ namespace WindowsCampApplication
                     // Click button size
                     driver.FindElement(
                     By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
-                    Console.WriteLine("Choose button size");
+                    Console.WriteLine("Choose button size "+ driver.FindElement(
+                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Text);
                     Thread.Sleep(2000);
 
                     // Click add to cart
                     driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Click();
-                    Console.WriteLine("Click add to Cart");
-                    Thread.Sleep(2000);
-                    
+                    Console.WriteLine("Click add to Cart "+ driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
+                    Thread.Sleep(3000);
+
+                    try
+                    {
+                        wait.Until(SeleniumExtras.WaitHelpers.
+                            ExpectedConditions.ElementIsVisible(By.XPath("//div[@class='cart-item-modal-content-container " +
+                            "ncss-container p6-sm bg-white']")));
+                        Console.WriteLine("Add already");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Cannot add to cart");
+                    }
+
                     // CLick the cart
                     if (HEADLESS == 1)
                     {
-                        // go back Nike home
-                        driver.Navigate().GoToUrl("https://www.nike.com/");
-                        Console.WriteLine("Back to NIKE page");
-                        Thread.Sleep(15000);
-
-                        // Check alert box location
-                        driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
                         Thread.Sleep(2000);
-                        string aria_code = driver.FindElement(By.XPath($"//a[@class='hf-language-menu-item ncss-col-sm-12 ncss-col-md-4 ncss-col-lg-3' " +
-                            $"and @title ='{orderInfo.Country}']")).GetAttribute("data-country");
-                        Thread.Sleep(2000);
-
-                        // Load the cart
-                        var url_cart = Url.Combine("https://www.nike.com/", aria_code, "/en/cart/");
-                        driver.Navigate().GoToUrl(url_cart);
+                        var li_All = driver.FindElements(By.XPath("//ul[@class='right-nav prl7-sm ']/li"));
+                        Url li_cart = li_All.FirstOrDefault(i => i.GetAttribute("data-qa") == "top-nav-cart-link").
+                            FindElement(By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent prl3-sm " +
+                            "pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).GetAttribute("href");
+                        Console.WriteLine("Load the cart");
+                        driver.Navigate().GoToUrl(li_cart);
                         Thread.Sleep(2000);
                     }
                     else
                     {
+                        // Click to check the cart
                         driver.FindElement(
                            By.XPath("//a[" +
                            "@class='hover-color-black text-color-grey bg-transparent " +
                            "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
+                        Console.WriteLine("Load the cart");
                         Thread.Sleep(2000);
                     }
-                    Console.WriteLine("Load the cart");
-                    
 
                     // Click to checkout
                     try
@@ -377,55 +422,59 @@ namespace WindowsCampApplication
             var token = tokenSource.Token;
             parlOps.CancellationToken = token;
             parlOps.MaxDegreeOfParallelism = TAB;
-            var remove_order = new ConcurrentBag<string>();
             string result = "";
             try
             {
-                Parallel.ForEach
-                (orderList,
-                    // Limit load page per time
-                    parlOps, order =>
-                    {
-                        if (order.Country.Equals("Australia")) // change to datetime to select order to pickup and order
-                        {
-                            result = LoadDriver(order);
-                            remove_order.Add(order.OrderLink);
-                            Console.WriteLine("Link: {0}, at Thread = {1}",
-                                order.OrderLink,
-                                Thread.CurrentThread.ManagedThreadId);
-                            // Update result
-                            resultTextBox.Invoke(new MethodInvoker(delegate
+                try
+                {
+                    Parallel.ForEach
+                    (orderList,
+                       // Limit load page per time
+                       parlOps, (order, state) =>
+                       {
+                           parlOps.CancellationToken.ThrowIfCancellationRequested();
+                           DateTime present = ConvertLocalDateTime(order);
+                           int compare_datetime = DateTime.Compare(present, order.Time);
+                           if (compare_datetime >= 0) // change to datetime to select order to pickup and order
                             {
-                                resultTextBox.Text += result + Environment.NewLine;
-                            }
-                            ));
-                            Thread.Sleep(10000);
-                        }
-                        else
-                        {
-                            result = "Wait";
-                            Console.WriteLine("Wait");
-                            // Update result
-                            resultTextBox.Invoke(new MethodInvoker(delegate
-                            {
-                                resultTextBox.Text += result + Environment.NewLine;
-                            }
-                            ));
-                            Thread.Sleep(10000);
-                        }
-                    }
-                );
-                //Console.WriteLine($"Number of order: {orderList.Count}");
-                //foreach (string link in remove_order)
-                //{
-                //    Console.WriteLine(link);
-                //    orderList.RemoveAll(cc => cc.OrderLink.Equals(link));
-                //    Console.WriteLine($"Remove order {link}");
-                //}
-            }
-            catch(OperationCanceledException ex)
-            {
 
+                               result = LoadDriver(order);
+                                //remove_order.Add(order.OrderLink);
+                                Console.WriteLine("Link: {0}, at Thread = {1}",
+                                   order.OrderLink,
+                                   Thread.CurrentThread.ManagedThreadId);
+                                // Update result
+                                resultTextBox.Invoke(new MethodInvoker(delegate
+                               {
+                                   resultTextBox.Text += result + Environment.NewLine;
+                               }
+                               ));
+                               Thread.Sleep(10000);
+
+                           }
+                           else
+                           {
+                               result = $"Wait until {order.Time} of {order.Country}";
+                               Console.WriteLine(result);
+                                // Update result
+                                resultTextBox.Invoke(new MethodInvoker(delegate
+                               {
+                                   resultTextBox.Text += result + Environment.NewLine;
+                               }
+                               ));
+                               Thread.Sleep(10000);
+                           }
+                       }
+                   );
+                }
+                catch (OperationCanceledException e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+            catch(AggregateException ex)
+            {
+                Console.WriteLine(ex);
             }
         }
 
@@ -443,12 +492,66 @@ namespace WindowsCampApplication
 
         private async void stopBtn_Click(object sender, EventArgs e)
         {
-            await Task.Factory.StartNew(() =>
+            if(PROCESSING == 0)
             {
-                tokenSource.Cancel();
-            });
-            
-            PROCESSING = 0;
+                String message = "Application is not Running";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
+            }
+            else
+            {
+                String message = "Application is Running. If you stop, you have to wait runing drivers. Do you want to stop?";
+                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    await Task.Factory.StartNew(() =>
+                    {
+                        tokenSource.Cancel();
+                    });
+                }
+            }
+        }
+
+        private DateTime ConvertLocalDateTime(OrderInfo order)
+        {
+
+            // Get current time utc
+            DateTime currentDateTime = DateTime.UtcNow;
+            string countryName = order.Country;
+            Console.WriteLine(countryName);
+            string value = countryCodeList.Find(item => item.CountryName == countryName).CountryCode;
+
+            var sourceZone = TimeZoneInfo.GetSystemTimeZones();
+
+            // Get Location time
+            var source = TzdbDateTimeZoneSource.Default;
+            IEnumerable<string> windowsZoneIds = source.ZoneLocations
+                .Where(x => x.CountryCode == value)
+                .Select(tz => source.WindowsMapping.MapZones
+                    .FirstOrDefault(x => x.TzdbIds.Contains(
+                                         source.CanonicalIdMap.First(y => y.Value == tz.ZoneId).Key)))
+                .Where(x => x != null)
+                .Select(x => x.WindowsId)
+                .Distinct();
+
+            //Get zone destination
+            // Egypt Irland do not in system
+            try
+            {
+                TimeZoneInfo zoneDestination = TimeZoneInfo.FindSystemTimeZoneById(windowsZoneIds.ElementAt(0));
+                // Convert time 
+                DateTime newDateTimeZone = TimeZoneInfo.ConvertTimeFromUtc(currentDateTime, zoneDestination);
+                Console.WriteLine($"{order.Country} time: " + newDateTimeZone);
+                return newDateTimeZone;
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                String message = "Cannot find out timezone, use current UTC Time?";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
+                return currentDateTime;
+            }
         }
     }
 }
