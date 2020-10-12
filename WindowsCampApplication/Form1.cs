@@ -217,7 +217,7 @@ namespace WindowsCampApplication
             //options.AddArguments("--window-size=1920,1080");
             options.AddArguments("--disable-gpu");
             options.AddArguments("--disable-extensions");
-            options.AddUserProfilePreference("disable-popup-blocking", "true");
+            //options.AddUserProfilePreference("disable-popup-blocking", "true");
             options.AddArguments("--proxy-server='direct://'");
             options.AddArguments("--proxy-bypass-list=*");
             //options.AddArguments("--start-maximized");
@@ -358,16 +358,28 @@ namespace WindowsCampApplication
                     Console.WriteLine("Click add to Cart "+ driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
                     Thread.Sleep(3000);
 
+                    try
+                    {
+                        wait.Until(SeleniumExtras.WaitHelpers.
+                            ExpectedConditions.ElementIsVisible(By.XPath("//div[@class='cart-item-modal-content-container " +
+                            "ncss-container p6-sm bg-white']")));
+                        Console.WriteLine("Add already");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Cannot add to cart");
+                    }
+
                     // CLick the cart
                     if (HEADLESS == 1)
                     {
                         Thread.Sleep(2000);
                         var li_All = driver.FindElements(By.XPath("//ul[@class='right-nav prl7-sm ']/li"));
-                        var li_cart = li_All.FirstOrDefault(i => i.GetAttribute("data-qa") == "top-nav-cart-link").
+                        Url li_cart = li_All.FirstOrDefault(i => i.GetAttribute("data-qa") == "top-nav-cart-link").
                             FindElement(By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent prl3-sm " +
-                            "pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']"));
+                            "pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).GetAttribute("href");
                         Console.WriteLine("Load the cart");
-                        li_cart.Click();
+                        driver.Navigate().GoToUrl(li_cart);
                         Thread.Sleep(2000);
                     }
                     else
@@ -410,7 +422,6 @@ namespace WindowsCampApplication
             var token = tokenSource.Token;
             parlOps.CancellationToken = token;
             parlOps.MaxDegreeOfParallelism = TAB;
-            //var remove_order = new ConcurrentBag<string>();
             string result = "";
             try
             {
