@@ -25,6 +25,7 @@ using NodaTime.TimeZones;
 using NodaTime;
 using TimeZoneConverter;
 using OpenQA.Selenium.Interactions;
+using Keys = OpenQA.Selenium.Keys;
 
 namespace WindowsCampApplication
 {
@@ -228,8 +229,7 @@ namespace WindowsCampApplication
             int agent = rand.Next(0, userAgent.Length);
             options.AddArgument("--user-agent=" + userAgent[agent]);
             options.AddArguments("--disable-gpu");
-            //options.AddArguments("--window-size=1920,1080");
-            options.AddArguments("--disable-gpu");
+            options.AddArguments("--window-size=1280,1024");
             options.AddArguments("--disable-extensions");
             //options.AddUserProfilePreference("disable-popup-blocking", "true");
             options.AddArguments("--proxy-server='direct://'");
@@ -244,7 +244,10 @@ namespace WindowsCampApplication
             options.AddArguments("--allow-running-insecure-content");
             if (HEADLESS == 1)
             {
-                options.AddArguments("--incognito", "--headless", "--window-size=1280,1024", "--start-maximized");
+                options.AddArguments("--incognito", "--headless"
+                                     //"--window-size=1280,1024"
+                                     //"--start-maximized"
+                                     );
             }
             else
             {
@@ -253,7 +256,7 @@ namespace WindowsCampApplication
 
             // set driver
             IWebDriver driver = new ChromeDriver(chromeDriverService, options);
-            //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
@@ -355,7 +358,7 @@ namespace WindowsCampApplication
             else
             {
                 if (!driver.FindElement(
-                   By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Enabled)
+                   By.XPath($"//button[text()='{orderInfo.Size}']")).Enabled)
                 {
                     //add result
                     result = $"This size is run out off at link {orderInfo.OrderLink}|FAILED";
@@ -365,19 +368,26 @@ namespace WindowsCampApplication
                 else
                 {
                     // Click button size
-                    driver.FindElement(
-                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
+                    IWebElement sizebtn= driver.FindElement(
+                    By.XPath($"//button[text() = '{orderInfo.Size}']"));
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
+                    Actions action = new Actions(driver);
+                    action.MoveToElement(sizebtn).Click().Perform();
                     Console.WriteLine("Choose button size " + driver.FindElement(
-                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Text);
+                    By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
                     Thread.Sleep(2000);
 
                     // Click add to cart
-                    driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Click();
+                    IWebElement addCartBtn = driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']"));
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
+                    action = new Actions(driver);
+                    action.MoveToElement(addCartBtn).Click().Perform();
                     Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
-                    Thread.Sleep(3000);
+                    Thread.Sleep(2000);
 
                     try
                     {
+                        Thread.Sleep(2000);
                         wait.Until(SeleniumExtras.WaitHelpers.
                             ExpectedConditions.ElementIsVisible(By.XPath("//div[@class='cart-item-modal-content-container " +
                             "ncss-container p6-sm bg-white']")));
@@ -428,13 +438,17 @@ namespace WindowsCampApplication
                         driver.Quit();
                         return result;
                     }
+
                     // load list button to find checkout button
                     var checkoutBtn = driver.FindElement(By.XPath("//div[@class='d-sm-h d-lg-tr']"));
                     checkoutBtn.FindElement(By.XPath("//button[text()='Guest Checkout']")).Click();
                     Console.WriteLine("Clicked Checkout");
                     Thread.Sleep(2000);
 
-                    result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
+                    //Insert First name and last name
+                    result = AutoFill(driver, orderInfo);
+
+                    //result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
                     Console.WriteLine(result);
                     driver.Quit();
                 }
@@ -579,6 +593,130 @@ namespace WindowsCampApplication
                 DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
                 return currentDateTime;
             }
+        }
+
+        private string AutoFill(IWebDriver driver, OrderInfo order)
+        {
+            string result = "";
+
+            var firstName = driver.FindElement(By.Id("firstName"));
+            firstName.SendKeys(order.FirstName);
+            firstName.Submit();
+            Console.WriteLine($"Add First Name: {order.FirstName}");
+            Thread.Sleep(2000);
+
+            var lastName = driver.FindElement(By.Id("lastName"));
+            lastName.SendKeys(order.LastName);
+            lastName.Submit();
+            Console.WriteLine($"Add last Name: {order.LastName}");
+            Thread.Sleep(2000);
+
+            driver.FindElement(By.Id("addressSuggestionOptOut")).Click();
+            Thread.Sleep(2000);
+
+            var address = driver.FindElement(By.Id("address1"));
+            address.SendKeys(order.Address);
+            address.Submit();
+            address.SendKeys(Keys.Enter);
+            Console.WriteLine($"Add Address: {order.Address}");
+            Thread.Sleep(2000);
+
+            var city = driver.FindElement(By.Id("city"));
+            city.SendKeys(order.City);
+            city.Submit();
+            Console.WriteLine($"Add City: {order.City}");
+            Thread.Sleep(2000);
+
+            driver.FindElement(By.Id("state")).Click();
+            Thread.Sleep(2000);
+            var state = driver.FindElement(By.XPath($"//option[@value='{order.StateCode}']"));
+            state.Click();
+            Console.WriteLine($"Choose state: {order.StateCode}");
+            Thread.Sleep(2000);
+
+            var postalCode = driver.FindElement(By.Id("postalCode"));
+            postalCode.SendKeys(order.PostalCode);
+            postalCode.Submit();
+            Console.WriteLine($"Add PostalCode: {order.PostalCode}");
+            Thread.Sleep(2000);
+
+            var email = driver.FindElement(By.Id("email"));
+            email.SendKeys(order.Email);
+            email.Submit();
+            Console.WriteLine($"Add Email: {order.Email}");
+            Thread.Sleep(2000);
+
+            var phoneNumber = driver.FindElement(By.Id("phoneNumber"));
+            phoneNumber.SendKeys(order.Phone);
+            phoneNumber.Submit();
+            Console.WriteLine($"Add Number phone: {order.Phone}");
+            Thread.Sleep(2000);
+
+            IWebElement paymentBtn = driver.FindElement(By.XPath("//button[text() = 'Continue to Payment']"));
+            Actions action = new Actions(driver);
+            action.MoveToElement(paymentBtn).Click().Perform();
+            Thread.Sleep(2000);
+            Console.WriteLine($"Payment");
+            Thread.Sleep(2000);
+
+            action = new Actions(driver);
+            action.SendKeys(OpenQA.Selenium.Keys.End).Build().Perform();
+
+            driver.SwitchTo().Frame(driver.FindElement(By.XPath("//iframe[@class='credit-card-iframe mt1 u-full-width prl2-sm']")));
+            Thread.Sleep(2000);
+
+            IWebElement creditCard = driver.FindElement(By.Id("creditCardNumber"));
+            creditCard.SendKeys(order.Card);
+            creditCard.Submit();
+            Console.WriteLine($"Add Card: {order.Card}");
+            Thread.Sleep(2000);
+
+            var expirationDate = driver.FindElement(By.Id("expirationDate"));
+            expirationDate.SendKeys(order.ExDate.Replace("/",""));
+            expirationDate.Submit();
+            Console.WriteLine($"Add Expiration Date: {order.ExDate}");
+            Thread.Sleep(2000);
+
+            var cvNumber = driver.FindElement(By.Id("cvNumber"));
+            cvNumber.SendKeys(order.Security);
+            cvNumber.Submit();
+            Console.WriteLine($"Add cvNumber: {order.Security}");
+            Thread.Sleep(2000);
+
+            driver.SwitchTo().DefaultContent();
+            Thread.Sleep(2000);
+
+            try
+            {
+                var placeOrder = driver.FindElement(By.XPath("//button[@class='d-lg-ib fs14-sm ncss-brand " +
+                "ncss-btn-accent pb2-lg pb3-sm prl5-sm " +
+                "pt2-lg pt3-sm u-uppercase' and text() = 'Place Order']"));
+                if (placeOrder.Enabled)
+                {
+                    placeOrder.Click();
+                    result = $"Order successfull {order.OrderLink}|SUCCESS";
+                }
+                else
+                {
+                    result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
+                }
+                return result;
+            }
+            catch(Exception e)
+            {
+
+            }
+            var placeOrder1 = driver.FindElement(By.XPath("//button[text()='Continue To Order Review']"));
+            if (placeOrder1.Enabled)
+            {
+                placeOrder1.Click();
+                result = $"Order successfull {order.OrderLink}|SUCCESS";
+            }
+            else
+            {
+                result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
+            }
+            return result;
         }
     }
 }
