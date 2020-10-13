@@ -119,11 +119,22 @@ namespace WindowsCampApplication
                         sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
                             System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
                         sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
+                        sub_order.FirstName = info[4];
+                        sub_order.LastName = info[5];
+                        sub_order.Address = info[6];
+                        sub_order.City = info[7];
+                        sub_order.StateCode = info[8];
+                        sub_order.PostalCode = info[9];
+                        sub_order.Email = @"" + info[10];
+                        sub_order.Phone = info[11];
+                        sub_order.Card = info[12];
+                        sub_order.ExDate = info[13];
+                        sub_order.Security = Regex.Replace(info[14], @"\t|\n|\r", "");
                         orderList.Add(sub_order);
 
                         //test
                         Console.WriteLine(sub_order.OrderLink);
-                        Console.WriteLine(sub_order.Size);
+                        Console.WriteLine(sub_order.ExDate);
                     }
                 }
                 orderInforTextBox.Text = fileContent + Environment.NewLine;
