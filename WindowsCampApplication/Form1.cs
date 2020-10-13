@@ -66,12 +66,12 @@ namespace WindowsCampApplication
                 var content = reader.ReadToEnd();
                 sub_array = content.Split('\n');
             }
-            foreach(string zone in sub_array)
+            foreach (string zone in sub_array)
             {
                 CountryInfo sub_tz = new CountryInfo();
                 String[] info = zone.Split('|');
                 sub_tz.CountryCode = info[0];
-                sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", ""); 
+                sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", "");
                 countryCodeList.Add(sub_tz);
             }
         }
@@ -107,7 +107,6 @@ namespace WindowsCampApplication
                     {
                         fileContent = reader.ReadToEnd();
                         sub_array = fileContent.Split('\n');
-
                     }
 
                     // Add order to array
@@ -121,6 +120,10 @@ namespace WindowsCampApplication
                             System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
                         sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
                         orderList.Add(sub_order);
+
+                        //test
+                        Console.WriteLine(sub_order.OrderLink);
+                        Console.WriteLine(sub_order.Size);
                     }
                 }
                 orderInforTextBox.Text = fileContent + Environment.NewLine;
@@ -129,7 +132,7 @@ namespace WindowsCampApplication
 
         private async void campBtn_Click(object sender, EventArgs e)
         {
-            if(PROCESSING == 1)
+            if (PROCESSING == 1)
             {
                 String message = "App is processing...";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
@@ -201,7 +204,7 @@ namespace WindowsCampApplication
         }
 
         // Load and get order
-        public string  LoadDriver(OrderInfo orderInfo)
+        public string LoadDriver(OrderInfo orderInfo)
         {
             string result = "";
 
@@ -249,9 +252,9 @@ namespace WindowsCampApplication
             try
             {
                 IWebElement closePanel = driver.FindElement(By.XPath("//button[@class='pre-modal-btn-close']"));
-                if(closePanel.Displayed)
+                if (closePanel.Displayed)
                     closePanel.Click();
-                    Console.WriteLine("Close the alert");
+                Console.WriteLine("Close the alert");
             }
             catch (NoSuchElementException ex)
             {
@@ -268,7 +271,7 @@ namespace WindowsCampApplication
                 alertLocation = wait.Until(SeleniumExtras.WaitHelpers.
                     ExpectedConditions.ElementExists(By.XPath("//div[@class='hf-geomismatch-btn-container']")));
             }
-            catch(TimeoutException e)
+            catch (TimeoutException e)
             {
 
             }
@@ -312,6 +315,8 @@ namespace WindowsCampApplication
                 result = $"Product at link {orderInfo.OrderLink} was SOLD OUT|FAILED";
                 Console.WriteLine(result);
                 driver.Quit();
+                orderList.Remove(orderInfo);
+                return result;
             }
 
             // Check size available
@@ -333,6 +338,8 @@ namespace WindowsCampApplication
                 result = $"This size is unavailable at link {orderInfo.OrderLink}|FAILED";
                 Console.WriteLine(result);
                 driver.Quit();
+                orderList.Remove(orderInfo);
+                return result;
             }
             else
             {
@@ -349,13 +356,13 @@ namespace WindowsCampApplication
                     // Click button size
                     driver.FindElement(
                     By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
-                    Console.WriteLine("Choose button size "+ driver.FindElement(
+                    Console.WriteLine("Choose button size " + driver.FindElement(
                     By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Text);
                     Thread.Sleep(2000);
 
                     // Click add to cart
                     driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Click();
-                    Console.WriteLine("Click add to Cart "+ driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
+                    Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
                     Thread.Sleep(3000);
 
                     try
@@ -367,7 +374,10 @@ namespace WindowsCampApplication
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("Cannot add to cart");
+                        result = $"Cannot add to cart {orderInfo.OrderLink}";
+                        Console.WriteLine(result);
+                        driver.Quit();
+                        return result;
                     }
 
                     // CLick the cart
@@ -407,6 +417,12 @@ namespace WindowsCampApplication
                         driver.Quit();
                         return result;
                     }
+                    // load list button to find checkout button
+                    var checkoutBtn = driver.FindElement(By.XPath("//div[@class='d-sm-h d-lg-tr']"));
+                    checkoutBtn.FindElement(By.XPath("//button[text()='Guest Checkout']")).Click();
+                    Console.WriteLine("Clicked Checkout");
+                    Thread.Sleep(2000);
+
                     result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
                     Console.WriteLine(result);
                     driver.Quit();
@@ -436,19 +452,19 @@ namespace WindowsCampApplication
                            DateTime present = ConvertLocalDateTime(order);
                            int compare_datetime = DateTime.Compare(present, order.Time);
                            if (compare_datetime >= 0) // change to datetime to select order to pickup and order
-                            {
+                           {
 
                                result = LoadDriver(order);
-                                //remove_order.Add(order.OrderLink);
-                                Console.WriteLine("Link: {0}, at Thread = {1}",
-                                   order.OrderLink,
-                                   Thread.CurrentThread.ManagedThreadId);
-                                // Update result
-                                resultTextBox.Invoke(new MethodInvoker(delegate
+                               //remove_order.Add(order.OrderLink);
+                               Console.WriteLine("Link: {0}, at Thread = {1}",
+                                  order.OrderLink,
+                                  Thread.CurrentThread.ManagedThreadId);
+                               // Update result
+                               resultTextBox.Invoke(new MethodInvoker(delegate
                                {
                                    resultTextBox.Text += result + Environment.NewLine;
                                }
-                               ));
+                              ));
                                Thread.Sleep(10000);
 
                            }
@@ -456,12 +472,12 @@ namespace WindowsCampApplication
                            {
                                result = $"Wait until {order.Time} of {order.Country}";
                                Console.WriteLine(result);
-                                // Update result
-                                resultTextBox.Invoke(new MethodInvoker(delegate
+                               // Update result
+                               resultTextBox.Invoke(new MethodInvoker(delegate
                                {
                                    resultTextBox.Text += result + Environment.NewLine;
                                }
-                               ));
+                              ));
                                Thread.Sleep(10000);
                            }
                        }
@@ -472,7 +488,7 @@ namespace WindowsCampApplication
                     Console.WriteLine(e);
                 }
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 Console.WriteLine(ex);
             }
@@ -492,7 +508,7 @@ namespace WindowsCampApplication
 
         private async void stopBtn_Click(object sender, EventArgs e)
         {
-            if(PROCESSING == 0)
+            if (PROCESSING == 0)
             {
                 String message = "Application is not Running";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
