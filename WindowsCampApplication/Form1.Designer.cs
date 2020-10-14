@@ -40,6 +40,7 @@
             this.tabLb = new System.Windows.Forms.Label();
             this.stopBtn = new System.Windows.Forms.Button();
             this.clear_btn = new System.Windows.Forms.Button();
+            this.timerLb = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // orderInforTextBox
@@ -168,11 +169,22 @@
             this.clear_btn.UseVisualStyleBackColor = true;
             this.clear_btn.Click += new System.EventHandler(this.clear_btn_Click);
             // 
+            // timerLb
+            // 
+            this.timerLb.AutoSize = true;
+            this.timerLb.Font = new System.Drawing.Font("Microsoft Sans Serif", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timerLb.Location = new System.Drawing.Point(430, 207);
+            this.timerLb.Name = "timerLb";
+            this.timerLb.Size = new System.Drawing.Size(199, 52);
+            this.timerLb.TabIndex = 10;
+            this.timerLb.Text = "00:00:00";
+            // 
             // webCampingWindows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1061, 702);
+            this.Controls.Add(this.timerLb);
             this.Controls.Add(this.clear_btn);
             this.Controls.Add(this.stopBtn);
             this.Controls.Add(this.tabLb);
@@ -207,6 +219,7 @@
         private System.Windows.Forms.Label tabLb;
         private System.Windows.Forms.Button stopBtn;
         private System.Windows.Forms.Button clear_btn;
+        private System.Windows.Forms.Label timerLb;
     }
 }
 

@@ -27,6 +27,7 @@ using TimeZoneConverter;
 using OpenQA.Selenium.Interactions;
 using Keys = OpenQA.Selenium.Keys;
 using OpenQA.Selenium.Firefox;
+using Timer = System.Windows.Forms.Timer;
 
 namespace WindowsCampApplication
 {
@@ -56,9 +57,14 @@ namespace WindowsCampApplication
         public static Object _lock = new Object();
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
         public static List<CountryInfo> countryCodeList = new List<CountryInfo>();
+        public static Timer t = new Timer();
         public webCampingWindows()
         {
             String[] sub_array;
+
+            //timer
+            StartTimer();
+ 
             InitializeComponent();
 
             // Get time zone code initial
@@ -755,6 +761,18 @@ namespace WindowsCampApplication
                     }
                 }
             }
+        }
+        private void StartTimer()
+        {
+            t.Interval = 1000;
+            t.Tick += new EventHandler(t_Tick);
+            t.Enabled = true;
+            t.Start();
+        }
+
+        void t_Tick(object sender, EventArgs e)
+        {
+            timerLb.Text = DateTime.Now.ToString("HH:mm:ss");
         }
     }
 }
