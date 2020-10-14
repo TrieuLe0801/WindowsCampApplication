@@ -49,7 +49,7 @@ namespace WindowsCampApplication
         public static int HEADLESS = 0;
         public static int PROCESSING = 0;
         public static int TAB = 0;
-        public static string CHROMEDRIVER_PATH = Path.Combine(Directory.GetParent(
+        public static string INITIAL_PATH = Path.Combine(Directory.GetParent(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
                 @"WindowsCampApplication");
         public static Object _lock = new Object();
@@ -61,7 +61,7 @@ namespace WindowsCampApplication
             InitializeComponent();
 
             // Get time zone code initial
-            var countryCodeFilePath = Path.Combine(CHROMEDRIVER_PATH, "timezoneCode.txt");
+            var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
             using (StreamReader reader = new StreamReader(countryCodeFilePath))
             {
                 var content = reader.ReadToEnd();
@@ -220,7 +220,7 @@ namespace WindowsCampApplication
         {
             string result = "";
 
-            var chromeDriverService = ChromeDriverService.CreateDefaultService(CHROMEDRIVER_PATH);
+            var chromeDriverService = ChromeDriverService.CreateDefaultService(INITIAL_PATH);
             chromeDriverService.HideCommandPromptWindow = true;
             ChromeOptions options = new ChromeOptions();
 
