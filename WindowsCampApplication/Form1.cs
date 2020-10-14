@@ -257,7 +257,7 @@ namespace WindowsCampApplication
             // set driver
             IWebDriver driver = new ChromeDriver(chromeDriverService, options);
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
@@ -372,16 +372,16 @@ namespace WindowsCampApplication
                     By.XPath($"//button[text() = '{orderInfo.Size}']"));
                     ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
                     Actions action = new Actions(driver);
-                    action.MoveToElement(sizebtn).Click().Perform();
+                    action.MoveToElement(sizebtn).DoubleClick().Perform();
                     Console.WriteLine("Choose button size " + driver.FindElement(
                     By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
                     Thread.Sleep(2000);
 
                     // Click add to cart
-                    IWebElement addCartBtn = driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']"));
+                    IWebElement addCartBtn = driver.FindElement(By.XPath("//div[@class='mt2-sm mb6-sm prl0-lg fs14-sm']"));
                     ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
                     action = new Actions(driver);
-                    action.MoveToElement(addCartBtn).Click().Perform();
+                    action.MoveToElement(addCartBtn).DoubleClick().Perform();
                     Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
                     Thread.Sleep(2000);
 
@@ -402,19 +402,16 @@ namespace WindowsCampApplication
                     }
 
                     // CLick the cart
-                    if (HEADLESS == 1)
-                    {
-                        Thread.Sleep(2000);
-                        var li_All = driver.FindElements(By.XPath("//ul[@class='right-nav prl7-sm ']/li"));
-                        Url li_cart = li_All.FirstOrDefault(i => i.GetAttribute("data-qa") == "top-nav-cart-link").
-                            FindElement(By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent prl3-sm " +
-                            "pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).GetAttribute("href");
-                        Console.WriteLine("Load the cart");
-                        driver.Navigate().GoToUrl(li_cart);
-                        Thread.Sleep(2000);
-                    }
-                    else
-                    {
+                   
+                        //Thread.Sleep(2000);
+                        //var li_All = driver.FindElements(By.XPath("//ul[@class='right-nav prl7-sm ']/li"));
+                        //Url li_cart = li_All.FirstOrDefault(i => i.GetAttribute("data-qa") == "top-nav-cart-link").
+                        //    FindElement(By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent prl3-sm " +
+                        //    "pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).GetAttribute("href");
+                        //Console.WriteLine("Load the cart");
+                        //driver.Navigate().GoToUrl(li_cart);
+                        //Thread.Sleep(2000);
+                    
                         // Click to check the cart
                         driver.FindElement(
                            By.XPath("//a[" +
@@ -422,7 +419,7 @@ namespace WindowsCampApplication
                            "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
                         Console.WriteLine("Load the cart");
                         Thread.Sleep(2000);
-                    }
+                  
 
                     // Click to checkout
                     try
