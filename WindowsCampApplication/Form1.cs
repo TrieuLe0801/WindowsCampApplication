@@ -382,7 +382,7 @@ namespace WindowsCampApplication
                     By.XPath($"//button[text() = '{orderInfo.Size}']"));
                     ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
                     Actions action = new Actions(driver);
-                    action.MoveToElement(sizebtn).DoubleClick().Perform();
+                    action.MoveToElement(sizebtn).Click().Perform();
                     Console.WriteLine("Choose button size " + driver.FindElement(
                     By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
                     Thread.Sleep(2000);
@@ -391,7 +391,7 @@ namespace WindowsCampApplication
                     IWebElement addCartBtn = driver.FindElement(By.XPath("//div[@class='mt2-sm mb6-sm prl0-lg fs14-sm']"));
                     ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
                     action = new Actions(driver);
-                    action.MoveToElement(addCartBtn).DoubleClick().Perform();
+                    action.MoveToElement(addCartBtn).Click().Perform();
                     Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
                     Thread.Sleep(2000);
 
