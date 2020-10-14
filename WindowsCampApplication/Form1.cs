@@ -26,6 +26,7 @@ using NodaTime;
 using TimeZoneConverter;
 using OpenQA.Selenium.Interactions;
 using Keys = OpenQA.Selenium.Keys;
+using OpenQA.Selenium.Firefox;
 
 namespace WindowsCampApplication
 {
@@ -220,13 +221,18 @@ namespace WindowsCampApplication
         {
             string result = "";
 
-            var chromeDriverService = ChromeDriverService.CreateDefaultService(INITIAL_PATH);
-            chromeDriverService.HideCommandPromptWindow = true;
-            ChromeOptions options = new ChromeOptions();
+            var firefoxDriverService = FirefoxDriverService.CreateDefaultService(INITIAL_PATH);
+            firefoxDriverService.HideCommandPromptWindow = true;
+
+            FirefoxProfile profile = new FirefoxProfile();
+            profile.SetPreference("browser.privatebrowsing.autostart", true);
+
+            FirefoxOptions options = new FirefoxOptions();
 
             // set up agent
             Random rand = new Random();
             int agent = rand.Next(0, userAgent.Length);
+            options.Profile = profile;
             options.AddArgument("--user-agent=" + userAgent[agent]);
             options.AddArguments("--disable-gpu");
             options.AddArguments("--window-size=1280,1024");
@@ -255,7 +261,7 @@ namespace WindowsCampApplication
             }
 
             // set driver
-            IWebDriver driver = new ChromeDriver(chromeDriverService, options);
+            IWebDriver driver = new FirefoxDriver(firefoxDriverService, options);
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
 
@@ -650,8 +656,10 @@ namespace WindowsCampApplication
             Thread.Sleep(2000);
 
             IWebElement paymentBtn = driver.FindElement(By.XPath("//button[text() = 'Continue to Payment']"));
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", paymentBtn);
             Actions action = new Actions(driver);
-            action.MoveToElement(paymentBtn).Click().Perform();
+            //action.MoveToElement(paymentBtn).Click().Perform();
+            paymentBtn.Click();
             Thread.Sleep(2000);
             Console.WriteLine($"Payment");
             Thread.Sleep(2000);
