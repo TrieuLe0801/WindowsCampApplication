@@ -163,7 +163,7 @@ namespace WindowsCampApplication
             {
                 String message = "Please insert number of tab";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                MessageBox.Show(message, "Tab alert message", buttons, MessageBoxIcon.Warning);
                 PROCESSING = 0;
                 return;
             }
@@ -171,7 +171,7 @@ namespace WindowsCampApplication
             {
                 String message = "Tab should be number";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                MessageBox.Show(message, "Tab alert message", buttons, MessageBoxIcon.Warning);
                 PROCESSING = 0;
                 return;
             }
@@ -181,7 +181,7 @@ namespace WindowsCampApplication
                 //alert box
                 String message = "Number of tab should be over 0 and under 5";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                MessageBox.Show(message, "Tab alert message", buttons, MessageBoxIcon.Warning);
                 PROCESSING = 0;
                 return;
             }
@@ -190,11 +190,15 @@ namespace WindowsCampApplication
             {
                 String message = "Need add order";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                MessageBox.Show(message, "Order alert message", buttons, MessageBoxIcon.Warning);
                 PROCESSING = 0;
             }
             else
             {
+                String message = "App is starting now...";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Start message", buttons, MessageBoxIcon.Information);
+
                 List<string> ordered;
                 // Wait loop
                 while (orderList.Count > 0)
@@ -209,9 +213,9 @@ namespace WindowsCampApplication
                         break;
                     }
                 }
-                String message = "Finsh Process";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
+                message = "Finsh Process";
+                MessageBoxButtons finbuttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Finish message", finbuttons, MessageBoxIcon.Information);
                 PROCESSING = 0;
             }
         }
@@ -540,13 +544,13 @@ namespace WindowsCampApplication
             {
                 String message = "Application is not Running";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
+                DialogResult result = MessageBox.Show(message, "Not runing alert message", buttons, MessageBoxIcon.Information);
             }
             else
             {
                 String message = "Application is Running. If you stop, you have to wait runing drivers. Do you want to stop?";
                 MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-                DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show(message, "Stop message", buttons, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
                     await Task.Factory.StartNew(() =>
@@ -722,6 +726,35 @@ namespace WindowsCampApplication
                 result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
             }
             return result;
+        }
+
+        private async void clear_btn_Click(object sender, EventArgs e)
+        {
+            if (PROCESSING == 1)
+            {
+                String message = "App is processing...";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                if (resultTextBox.Text.Equals(""))
+                {
+                    String message = "There are no any results";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, "Clear message", buttons, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    String message = "Do you want to clear all results?";
+                    MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                    DialogResult result = MessageBox.Show(message, "Clear message", buttons, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                        resultTextBox.Text = "";
+                    }
+                }
+            }
         }
     }
 }
