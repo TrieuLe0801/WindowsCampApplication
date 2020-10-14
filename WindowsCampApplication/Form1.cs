@@ -25,6 +25,9 @@ using NodaTime.TimeZones;
 using NodaTime;
 using TimeZoneConverter;
 using OpenQA.Selenium.Interactions;
+using Keys = OpenQA.Selenium.Keys;
+using OpenQA.Selenium.Firefox;
+using Timer = System.Windows.Forms.Timer;
 
 namespace WindowsCampApplication
 {
@@ -48,30 +51,35 @@ namespace WindowsCampApplication
         public static int HEADLESS = 0;
         public static int PROCESSING = 0;
         public static int TAB = 0;
-        public static string CHROMEDRIVER_PATH = Path.Combine(Directory.GetParent(
+        public static string INITIAL_PATH = Path.Combine(Directory.GetParent(
                 Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
                 @"WindowsCampApplication");
         public static Object _lock = new Object();
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
         public static List<CountryInfo> countryCodeList = new List<CountryInfo>();
+        public static Timer t = new Timer();
         public webCampingWindows()
         {
             String[] sub_array;
+
+            //timer
+            StartTimer();
+ 
             InitializeComponent();
 
             // Get time zone code initial
-            var countryCodeFilePath = Path.Combine(CHROMEDRIVER_PATH, "timezoneCode.txt");
+            var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
             using (StreamReader reader = new StreamReader(countryCodeFilePath))
             {
                 var content = reader.ReadToEnd();
                 sub_array = content.Split('\n');
             }
-            foreach(string zone in sub_array)
+            foreach (string zone in sub_array)
             {
                 CountryInfo sub_tz = new CountryInfo();
                 String[] info = zone.Split('|');
                 sub_tz.CountryCode = info[0];
-                sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", ""); 
+                sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", "");
                 countryCodeList.Add(sub_tz);
             }
         }
@@ -107,7 +115,6 @@ namespace WindowsCampApplication
                     {
                         fileContent = reader.ReadToEnd();
                         sub_array = fileContent.Split('\n');
-
                     }
 
                     // Add order to array
@@ -120,7 +127,22 @@ namespace WindowsCampApplication
                         sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
                             System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
                         sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
+                        sub_order.FirstName = info[4];
+                        sub_order.LastName = info[5];
+                        sub_order.Address = info[6];
+                        sub_order.City = info[7];
+                        sub_order.StateCode = info[8];
+                        sub_order.PostalCode = info[9];
+                        sub_order.Email = @"" + info[10];
+                        sub_order.Phone = info[11];
+                        sub_order.Card = info[12];
+                        sub_order.ExDate = info[13];
+                        sub_order.Security = Regex.Replace(info[14], @"\t|\n|\r", "");
                         orderList.Add(sub_order);
+
+                        //test
+                        Console.WriteLine(sub_order.OrderLink);
+                        Console.WriteLine(sub_order.ExDate);
                     }
                 }
                 orderInforTextBox.Text = fileContent + Environment.NewLine;
@@ -129,7 +151,7 @@ namespace WindowsCampApplication
 
         private async void campBtn_Click(object sender, EventArgs e)
         {
-            if(PROCESSING == 1)
+            if (PROCESSING == 1)
             {
                 String message = "App is processing...";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
@@ -147,7 +169,7 @@ namespace WindowsCampApplication
             {
                 String message = "Please insert number of tab";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                MessageBox.Show(message, "Tab alert message", buttons, MessageBoxIcon.Warning);
                 PROCESSING = 0;
                 return;
             }
@@ -155,7 +177,7 @@ namespace WindowsCampApplication
             {
                 String message = "Tab should be number";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                MessageBox.Show(message, "Tab alert message", buttons, MessageBoxIcon.Warning);
                 PROCESSING = 0;
                 return;
             }
@@ -165,7 +187,7 @@ namespace WindowsCampApplication
                 //alert box
                 String message = "Number of tab should be over 0 and under 5";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                MessageBox.Show(message, "Tab alert message", buttons, MessageBoxIcon.Warning);
                 PROCESSING = 0;
                 return;
             }
@@ -174,11 +196,15 @@ namespace WindowsCampApplication
             {
                 String message = "Need add order";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                MessageBox.Show(message, "Order alert message", buttons, MessageBoxIcon.Warning);
                 PROCESSING = 0;
             }
             else
             {
+                String message = "App is starting now...";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Start message", buttons, MessageBoxIcon.Information);
+
                 List<string> ordered;
                 // Wait loop
                 while (orderList.Count > 0)
@@ -193,29 +219,33 @@ namespace WindowsCampApplication
                         break;
                     }
                 }
-                String message = "Finsh Process";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
+                message = "Finsh Process";
+                MessageBoxButtons finbuttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Finish message", finbuttons, MessageBoxIcon.Information);
                 PROCESSING = 0;
             }
         }
 
         // Load and get order
-        public string  LoadDriver(OrderInfo orderInfo)
+        public string LoadDriver(OrderInfo orderInfo)
         {
             string result = "";
 
-            var chromeDriverService = ChromeDriverService.CreateDefaultService(CHROMEDRIVER_PATH);
-            chromeDriverService.HideCommandPromptWindow = true;
-            ChromeOptions options = new ChromeOptions();
+            var firefoxDriverService = FirefoxDriverService.CreateDefaultService(INITIAL_PATH);
+            firefoxDriverService.HideCommandPromptWindow = true;
+
+            FirefoxProfile profile = new FirefoxProfile();
+            profile.SetPreference("browser.privatebrowsing.autostart", true);
+
+            FirefoxOptions options = new FirefoxOptions();
 
             // set up agent
             Random rand = new Random();
             int agent = rand.Next(0, userAgent.Length);
+            options.Profile = profile;
             options.AddArgument("--user-agent=" + userAgent[agent]);
             options.AddArguments("--disable-gpu");
-            //options.AddArguments("--window-size=1920,1080");
-            options.AddArguments("--disable-gpu");
+            options.AddArguments("--window-size=1280,1024");
             options.AddArguments("--disable-extensions");
             //options.AddUserProfilePreference("disable-popup-blocking", "true");
             options.AddArguments("--proxy-server='direct://'");
@@ -230,7 +260,10 @@ namespace WindowsCampApplication
             options.AddArguments("--allow-running-insecure-content");
             if (HEADLESS == 1)
             {
-                options.AddArguments("--incognito", "--headless", "--window-size=1280,1024", "--start-maximized");
+                options.AddArguments("--incognito", "--headless"
+                                     //"--window-size=1280,1024"
+                                     //"--start-maximized"
+                                     );
             }
             else
             {
@@ -238,9 +271,9 @@ namespace WindowsCampApplication
             }
 
             // set driver
-            IWebDriver driver = new ChromeDriver(chromeDriverService, options);
-            //driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
+            IWebDriver driver = new FirefoxDriver(firefoxDriverService, options);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
@@ -249,9 +282,9 @@ namespace WindowsCampApplication
             try
             {
                 IWebElement closePanel = driver.FindElement(By.XPath("//button[@class='pre-modal-btn-close']"));
-                if(closePanel.Displayed)
+                if (closePanel.Displayed)
                     closePanel.Click();
-                    Console.WriteLine("Close the alert");
+                Console.WriteLine("Close the alert");
             }
             catch (NoSuchElementException ex)
             {
@@ -268,7 +301,7 @@ namespace WindowsCampApplication
                 alertLocation = wait.Until(SeleniumExtras.WaitHelpers.
                     ExpectedConditions.ElementExists(By.XPath("//div[@class='hf-geomismatch-btn-container']")));
             }
-            catch(TimeoutException e)
+            catch (TimeoutException e)
             {
 
             }
@@ -312,6 +345,8 @@ namespace WindowsCampApplication
                 result = $"Product at link {orderInfo.OrderLink} was SOLD OUT|FAILED";
                 Console.WriteLine(result);
                 driver.Quit();
+                orderList.Remove(orderInfo);
+                return result;
             }
 
             // Check size available
@@ -333,11 +368,13 @@ namespace WindowsCampApplication
                 result = $"This size is unavailable at link {orderInfo.OrderLink}|FAILED";
                 Console.WriteLine(result);
                 driver.Quit();
+                orderList.Remove(orderInfo);
+                return result;
             }
             else
             {
                 if (!driver.FindElement(
-                   By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Enabled)
+                   By.XPath($"//button[text()='{orderInfo.Size}']")).Enabled)
                 {
                     //add result
                     result = $"This size is run out off at link {orderInfo.OrderLink}|FAILED";
@@ -347,19 +384,26 @@ namespace WindowsCampApplication
                 else
                 {
                     // Click button size
-                    driver.FindElement(
-                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Click();
-                    Console.WriteLine("Choose button size "+ driver.FindElement(
-                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Text);
+                    IWebElement sizebtn= driver.FindElement(
+                    By.XPath($"//button[text() = '{orderInfo.Size}']"));
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
+                    Actions action = new Actions(driver);
+                    action.MoveToElement(sizebtn).Click().Perform();
+                    Console.WriteLine("Choose button size " + driver.FindElement(
+                    By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
                     Thread.Sleep(2000);
 
                     // Click add to cart
-                    driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Click();
-                    Console.WriteLine("Click add to Cart "+ driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
-                    Thread.Sleep(3000);
+                    IWebElement addCartBtn = driver.FindElement(By.XPath("//div[@class='mt2-sm mb6-sm prl0-lg fs14-sm']"));
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
+                    action = new Actions(driver);
+                    action.MoveToElement(addCartBtn).Click().Perform();
+                    Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
+                    Thread.Sleep(2000);
 
                     try
                     {
+                        Thread.Sleep(2000);
                         wait.Until(SeleniumExtras.WaitHelpers.
                             ExpectedConditions.ElementIsVisible(By.XPath("//div[@class='cart-item-modal-content-container " +
                             "ncss-container p6-sm bg-white']")));
@@ -367,23 +411,23 @@ namespace WindowsCampApplication
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("Cannot add to cart");
+                        result = $"Cannot add to cart {orderInfo.OrderLink}";
+                        Console.WriteLine(result);
+                        driver.Quit();
+                        return result;
                     }
 
                     // CLick the cart
-                    if (HEADLESS == 1)
-                    {
-                        Thread.Sleep(2000);
-                        var li_All = driver.FindElements(By.XPath("//ul[@class='right-nav prl7-sm ']/li"));
-                        Url li_cart = li_All.FirstOrDefault(i => i.GetAttribute("data-qa") == "top-nav-cart-link").
-                            FindElement(By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent prl3-sm " +
-                            "pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).GetAttribute("href");
-                        Console.WriteLine("Load the cart");
-                        driver.Navigate().GoToUrl(li_cart);
-                        Thread.Sleep(2000);
-                    }
-                    else
-                    {
+                   
+                        //Thread.Sleep(2000);
+                        //var li_All = driver.FindElements(By.XPath("//ul[@class='right-nav prl7-sm ']/li"));
+                        //Url li_cart = li_All.FirstOrDefault(i => i.GetAttribute("data-qa") == "top-nav-cart-link").
+                        //    FindElement(By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent prl3-sm " +
+                        //    "pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).GetAttribute("href");
+                        //Console.WriteLine("Load the cart");
+                        //driver.Navigate().GoToUrl(li_cart);
+                        //Thread.Sleep(2000);
+                    
                         // Click to check the cart
                         driver.FindElement(
                            By.XPath("//a[" +
@@ -391,7 +435,7 @@ namespace WindowsCampApplication
                            "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
                         Console.WriteLine("Load the cart");
                         Thread.Sleep(2000);
-                    }
+                  
 
                     // Click to checkout
                     try
@@ -407,7 +451,17 @@ namespace WindowsCampApplication
                         driver.Quit();
                         return result;
                     }
-                    result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
+
+                    // load list button to find checkout button
+                    var checkoutBtn = driver.FindElement(By.XPath("//div[@class='d-sm-h d-lg-tr']"));
+                    checkoutBtn.FindElement(By.XPath("//button[text()='Guest Checkout']")).Click();
+                    Console.WriteLine("Clicked Checkout");
+                    Thread.Sleep(2000);
+
+                    //Insert First name and last name
+                    result = AutoFill(driver, orderInfo);
+
+                    //result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
                     Console.WriteLine(result);
                     driver.Quit();
                 }
@@ -436,19 +490,19 @@ namespace WindowsCampApplication
                            DateTime present = ConvertLocalDateTime(order);
                            int compare_datetime = DateTime.Compare(present, order.Time);
                            if (compare_datetime >= 0) // change to datetime to select order to pickup and order
-                            {
+                           {
 
                                result = LoadDriver(order);
-                                //remove_order.Add(order.OrderLink);
-                                Console.WriteLine("Link: {0}, at Thread = {1}",
-                                   order.OrderLink,
-                                   Thread.CurrentThread.ManagedThreadId);
-                                // Update result
-                                resultTextBox.Invoke(new MethodInvoker(delegate
+                               //remove_order.Add(order.OrderLink);
+                               Console.WriteLine("Link: {0}, at Thread = {1}",
+                                  order.OrderLink,
+                                  Thread.CurrentThread.ManagedThreadId);
+                               // Update result
+                               resultTextBox.Invoke(new MethodInvoker(delegate
                                {
                                    resultTextBox.Text += result + Environment.NewLine;
                                }
-                               ));
+                              ));
                                Thread.Sleep(10000);
 
                            }
@@ -456,12 +510,12 @@ namespace WindowsCampApplication
                            {
                                result = $"Wait until {order.Time} of {order.Country}";
                                Console.WriteLine(result);
-                                // Update result
-                                resultTextBox.Invoke(new MethodInvoker(delegate
+                               // Update result
+                               resultTextBox.Invoke(new MethodInvoker(delegate
                                {
                                    resultTextBox.Text += result + Environment.NewLine;
                                }
-                               ));
+                              ));
                                Thread.Sleep(10000);
                            }
                        }
@@ -472,7 +526,7 @@ namespace WindowsCampApplication
                     Console.WriteLine(e);
                 }
             }
-            catch(AggregateException ex)
+            catch (AggregateException ex)
             {
                 Console.WriteLine(ex);
             }
@@ -492,17 +546,17 @@ namespace WindowsCampApplication
 
         private async void stopBtn_Click(object sender, EventArgs e)
         {
-            if(PROCESSING == 0)
+            if (PROCESSING == 0)
             {
                 String message = "Application is not Running";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
-                DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
+                DialogResult result = MessageBox.Show(message, "Not runing alert message", buttons, MessageBoxIcon.Information);
             }
             else
             {
                 String message = "Application is Running. If you stop, you have to wait runing drivers. Do you want to stop?";
                 MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-                DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Question);
+                DialogResult result = MessageBox.Show(message, "Stop message", buttons, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
                     await Task.Factory.StartNew(() =>
@@ -552,6 +606,173 @@ namespace WindowsCampApplication
                 DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
                 return currentDateTime;
             }
+        }
+
+        private string AutoFill(IWebDriver driver, OrderInfo order)
+        {
+            string result = "";
+
+            var firstName = driver.FindElement(By.Id("firstName"));
+            firstName.SendKeys(order.FirstName);
+            firstName.Submit();
+            Console.WriteLine($"Add First Name: {order.FirstName}");
+            Thread.Sleep(2000);
+
+            var lastName = driver.FindElement(By.Id("lastName"));
+            lastName.SendKeys(order.LastName);
+            lastName.Submit();
+            Console.WriteLine($"Add last Name: {order.LastName}");
+            Thread.Sleep(2000);
+
+            driver.FindElement(By.Id("addressSuggestionOptOut")).Click();
+            Thread.Sleep(2000);
+
+            var address = driver.FindElement(By.Id("address1"));
+            address.SendKeys(order.Address);
+            address.Submit();
+            address.SendKeys(Keys.Enter);
+            Console.WriteLine($"Add Address: {order.Address}");
+            Thread.Sleep(2000);
+
+            var city = driver.FindElement(By.Id("city"));
+            city.SendKeys(order.City);
+            city.Submit();
+            Console.WriteLine($"Add City: {order.City}");
+            Thread.Sleep(2000);
+
+            driver.FindElement(By.Id("state")).Click();
+            Thread.Sleep(2000);
+            var state = driver.FindElement(By.XPath($"//option[@value='{order.StateCode}']"));
+            state.Click();
+            Console.WriteLine($"Choose state: {order.StateCode}");
+            Thread.Sleep(2000);
+
+            var postalCode = driver.FindElement(By.Id("postalCode"));
+            postalCode.SendKeys(order.PostalCode);
+            postalCode.Submit();
+            Console.WriteLine($"Add PostalCode: {order.PostalCode}");
+            Thread.Sleep(2000);
+
+            var email = driver.FindElement(By.Id("email"));
+            email.SendKeys(order.Email);
+            email.Submit();
+            Console.WriteLine($"Add Email: {order.Email}");
+            Thread.Sleep(2000);
+
+            var phoneNumber = driver.FindElement(By.Id("phoneNumber"));
+            phoneNumber.SendKeys(order.Phone);
+            phoneNumber.Submit();
+            Console.WriteLine($"Add Number phone: {order.Phone}");
+            Thread.Sleep(2000);
+
+            IWebElement paymentBtn = driver.FindElement(By.XPath("//button[text() = 'Continue to Payment']"));
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", paymentBtn);
+            Actions action = new Actions(driver);
+            //action.MoveToElement(paymentBtn).Click().Perform();
+            paymentBtn.Click();
+            Thread.Sleep(2000);
+            Console.WriteLine($"Payment");
+            Thread.Sleep(2000);
+
+            action = new Actions(driver);
+            action.SendKeys(OpenQA.Selenium.Keys.End).Build().Perform();
+
+            driver.SwitchTo().Frame(driver.FindElement(By.XPath("//iframe[@class='credit-card-iframe mt1 u-full-width prl2-sm']")));
+            Thread.Sleep(2000);
+
+            IWebElement creditCard = driver.FindElement(By.Id("creditCardNumber"));
+            creditCard.SendKeys(order.Card);
+            creditCard.Submit();
+            Console.WriteLine($"Add Card: {order.Card}");
+            Thread.Sleep(2000);
+
+            var expirationDate = driver.FindElement(By.Id("expirationDate"));
+            expirationDate.SendKeys(order.ExDate.Replace("/",""));
+            expirationDate.Submit();
+            Console.WriteLine($"Add Expiration Date: {order.ExDate}");
+            Thread.Sleep(2000);
+
+            var cvNumber = driver.FindElement(By.Id("cvNumber"));
+            cvNumber.SendKeys(order.Security);
+            cvNumber.Submit();
+            Console.WriteLine($"Add cvNumber: {order.Security}");
+            Thread.Sleep(2000);
+
+            driver.SwitchTo().DefaultContent();
+            Thread.Sleep(2000);
+
+            try
+            {
+                var placeOrder = driver.FindElement(By.XPath("//button[@class='d-lg-ib fs14-sm ncss-brand " +
+                "ncss-btn-accent pb2-lg pb3-sm prl5-sm " +
+                "pt2-lg pt3-sm u-uppercase' and text() = 'Place Order']"));
+                if (placeOrder.Enabled)
+                {
+                    placeOrder.Click();
+                    result = $"Order successfull {order.OrderLink}|SUCCESS";
+                }
+                else
+                {
+                    result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
+                }
+                return result;
+            }
+            catch(Exception e)
+            {
+
+            }
+            var placeOrder1 = driver.FindElement(By.XPath("//button[text()='Continue To Order Review']"));
+            if (placeOrder1.Enabled)
+            {
+                placeOrder1.Click();
+                result = $"Order successfull {order.OrderLink}|SUCCESS";
+            }
+            else
+            {
+                result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
+            }
+            return result;
+        }
+
+        private async void clear_btn_Click(object sender, EventArgs e)
+        {
+            if (PROCESSING == 1)
+            {
+                String message = "App is processing...";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                if (resultTextBox.Text.Equals(""))
+                {
+                    String message = "There are no any results";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, "Clear message", buttons, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    String message = "Do you want to clear all results?";
+                    MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                    DialogResult result = MessageBox.Show(message, "Clear message", buttons, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                        resultTextBox.Text = "";
+                    }
+                }
+            }
+        }
+        private void StartTimer()
+        {
+            t.Interval = 1000;
+            t.Tick += new EventHandler(t_Tick);
+            t.Enabled = true;
+            t.Start();
+        }
+
+        void t_Tick(object sender, EventArgs e)
+        {
+            timerLb.Text = DateTime.Now.ToString("HH:mm:ss");
         }
     }
 }

@@ -39,6 +39,8 @@
             this.tabBox = new System.Windows.Forms.TextBox();
             this.tabLb = new System.Windows.Forms.Label();
             this.stopBtn = new System.Windows.Forms.Button();
+            this.clear_btn = new System.Windows.Forms.Button();
+            this.timerLb = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // orderInforTextBox
@@ -155,11 +157,35 @@
             this.stopBtn.UseVisualStyleBackColor = true;
             this.stopBtn.Click += new System.EventHandler(this.stopBtn_Click);
             // 
+            // clear_btn
+            // 
+            this.clear_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.clear_btn.Location = new System.Drawing.Point(691, 606);
+            this.clear_btn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.clear_btn.Name = "clear_btn";
+            this.clear_btn.Size = new System.Drawing.Size(316, 38);
+            this.clear_btn.TabIndex = 8;
+            this.clear_btn.Text = "Clear";
+            this.clear_btn.UseVisualStyleBackColor = true;
+            this.clear_btn.Click += new System.EventHandler(this.clear_btn_Click);
+            // 
+            // timerLb
+            // 
+            this.timerLb.AutoSize = true;
+            this.timerLb.Font = new System.Drawing.Font("Microsoft Sans Serif", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timerLb.Location = new System.Drawing.Point(430, 207);
+            this.timerLb.Name = "timerLb";
+            this.timerLb.Size = new System.Drawing.Size(199, 52);
+            this.timerLb.TabIndex = 10;
+            this.timerLb.Text = "00:00:00";
+            // 
             // webCampingWindows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1061, 702);
+            this.Controls.Add(this.timerLb);
+            this.Controls.Add(this.clear_btn);
             this.Controls.Add(this.stopBtn);
             this.Controls.Add(this.tabLb);
             this.Controls.Add(this.tabBox);
@@ -192,6 +218,8 @@
         private System.Windows.Forms.TextBox tabBox;
         private System.Windows.Forms.Label tabLb;
         private System.Windows.Forms.Button stopBtn;
+        private System.Windows.Forms.Button clear_btn;
+        private System.Windows.Forms.Label timerLb;
     }
 }
 
