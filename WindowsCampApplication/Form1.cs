@@ -201,7 +201,7 @@ namespace WindowsCampApplication
             }
             else
             {
-                String message = "App is starting now...";
+                String message = $"There are {orderList.Count} orders. App is starting now...";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Start message", buttons, MessageBoxIcon.Information);
 
@@ -219,7 +219,7 @@ namespace WindowsCampApplication
                         break;
                     }
                 }
-                message = "Finsh Process";
+                message = $"Finsh Process. There are {orderList.Count} orders available.";
                 MessageBoxButtons finbuttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Finish message", finbuttons, MessageBoxIcon.Information);
                 PROCESSING = 0;
