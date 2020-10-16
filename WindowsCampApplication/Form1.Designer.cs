@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(webCampingWindows));
             this.orderInforTextBox = new System.Windows.Forms.RichTextBox();
             this.resultTextBox = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -175,7 +176,7 @@
             this.timerLb.Font = new System.Drawing.Font("Microsoft Sans Serif", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.timerLb.Location = new System.Drawing.Point(430, 207);
             this.timerLb.Name = "timerLb";
-            this.timerLb.Size = new System.Drawing.Size(199, 52);
+            this.timerLb.Size = new System.Drawing.Size(198, 51);
             this.timerLb.TabIndex = 10;
             this.timerLb.Text = "00:00:00";
             // 
@@ -197,6 +198,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.resultTextBox);
             this.Controls.Add(this.orderInforTextBox);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "webCampingWindows";
             this.Text = "web-camping";
