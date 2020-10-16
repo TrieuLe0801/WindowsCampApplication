@@ -260,14 +260,14 @@ namespace WindowsCampApplication
             options.AddArguments("--allow-running-insecure-content");
             if (HEADLESS == 1)
             {
-                options.AddArguments("--incognito", "--headless"
+                options.AddArguments("-private-window", "--headless"
                                      //"--window-size=1280,1024"
                                      //"--start-maximized"
                                      );
             }
             else
             {
-                options.AddArguments("--incognito");
+                options.AddArguments("-private-window");
             }
 
             // set driver
@@ -416,26 +416,14 @@ namespace WindowsCampApplication
                         driver.Quit();
                         return result;
                     }
-
-                    // CLick the cart
-                   
-                        //Thread.Sleep(2000);
-                        //var li_All = driver.FindElements(By.XPath("//ul[@class='right-nav prl7-sm ']/li"));
-                        //Url li_cart = li_All.FirstOrDefault(i => i.GetAttribute("data-qa") == "top-nav-cart-link").
-                        //    FindElement(By.XPath("//a[@class='hover-color-black text-color-grey bg-transparent prl3-sm " +
-                        //    "pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).GetAttribute("href");
-                        //Console.WriteLine("Load the cart");
-                        //driver.Navigate().GoToUrl(li_cart);
-                        //Thread.Sleep(2000);
                     
-                        // Click to check the cart
-                        driver.FindElement(
-                           By.XPath("//a[" +
-                           "@class='hover-color-black text-color-grey bg-transparent " +
-                           "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
-                        Console.WriteLine("Load the cart");
-                        Thread.Sleep(2000);
-                  
+                    // Click to check the cart
+                    driver.FindElement(
+                        By.XPath("//a[" +
+                        "@class='hover-color-black text-color-grey bg-transparent " +
+                        "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
+                    Console.WriteLine("Load the cart");
+                    Thread.Sleep(2000);
 
                     // Click to checkout
                     try
