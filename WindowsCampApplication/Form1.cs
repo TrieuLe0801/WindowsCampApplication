@@ -120,32 +120,40 @@ namespace WindowsCampApplication
                     // Add order to array
                     foreach (String s in sub_array)
                     {
-                        OrderInfo sub_order = new OrderInfo();
-                        String[] info = s.Split('|');
-                        sub_order.OrderLink = info[0];
-                        sub_order.Size = info[1];
-                        sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
-                            System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
-                        sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
-                        sub_order.FirstName = info[4];
-                        sub_order.LastName = info[5];
-                        sub_order.Address = info[6];
-                        sub_order.City = info[7];
-                        sub_order.StateCode = info[8];
-                        sub_order.PostalCode = info[9];
-                        sub_order.Email = @"" + info[10];
-                        sub_order.Phone = info[11];
-                        sub_order.Card = info[12];
-                        sub_order.ExDate = info[13];
-                        sub_order.Security = Regex.Replace(info[14], @"\t|\n|\r", "");
-                        orderList.Add(sub_order);
+                        if (!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t"))
+                        {
+                            OrderInfo sub_order = new OrderInfo();
+                            String[] info = s.Split('|');
+                            sub_order.OrderLink = info[0];
+                            sub_order.Size = info[1];
+                            sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
+                                System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
+                            sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
+                            sub_order.FirstName = info[4];
+                            sub_order.LastName = info[5];
+                            sub_order.Address = info[6];
+                            sub_order.City = info[7];
+                            sub_order.StateCode = info[8];
+                            sub_order.PostalCode = info[9];
+                            sub_order.Email = @"" + info[10];
+                            sub_order.Phone = info[11];
+                            sub_order.Card = info[12];
+                            sub_order.ExDate = info[13];
+                            sub_order.Security = Regex.Replace(info[14], @"\t|\n|\r", "");
+                            orderList.Add(sub_order);
 
-                        //test
-                        Console.WriteLine(sub_order.OrderLink);
-                        Console.WriteLine(sub_order.ExDate);
+                            //test
+                            Console.WriteLine(sub_order.OrderLink);
+                            Console.WriteLine(sub_order.ExDate);
+
+                            foreach (var i in info)
+                            {
+                                orderInforTextBox.Text += i.ToString() + Environment.NewLine;
+                            }
+                            orderInforTextBox.Text += Environment.NewLine + Environment.NewLine;
+                        }
                     }
                 }
-                orderInforTextBox.Text = fileContent + Environment.NewLine;
             }
         }
 
@@ -273,7 +281,7 @@ namespace WindowsCampApplication
             // set driver
             IWebDriver driver = new FirefoxDriver(firefoxDriverService, options);
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
@@ -319,12 +327,12 @@ namespace WindowsCampApplication
 
             driver.Navigate().GoToUrl("https://www.nike.com/launch/");
             Console.WriteLine("Loaded NIKE Launch page");
-            Thread.Sleep(10000);
+            Thread.Sleep(8000);
 
             // Load item page
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine($"Load page {orderInfo.OrderLink}");
-            Thread.Sleep(10000);
+            Thread.Sleep(8000);
 
             // Check sold out
             bool soldOut = false;
@@ -416,7 +424,7 @@ namespace WindowsCampApplication
                         driver.Quit();
                         return result;
                     }
-                    
+
                     // Click to check the cart
                     driver.FindElement(
                         By.XPath("//a[" +
