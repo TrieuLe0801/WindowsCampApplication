@@ -296,8 +296,8 @@ namespace WindowsCampApplication
 
             // set driver
             IWebDriver driver = new FirefoxDriver(firefoxDriverService, options);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
@@ -353,12 +353,12 @@ namespace WindowsCampApplication
 
             driver.Navigate().GoToUrl("https://www.nike.com/launch/");
             Console.WriteLine("Loaded NIKE Launch page");
-            Thread.Sleep(8000);
+            Thread.Sleep(5000);
 
             // Load item page
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine($"Load page {orderInfo.OrderLink}");
-            Thread.Sleep(8000);
+            Thread.Sleep(3000);
 
             // Check sold out
             bool soldOut = false;
@@ -367,20 +367,20 @@ namespace WindowsCampApplication
                 soldOut = driver.FindElement(By.XPath(
                     "//div[@class='ncss-btn-primary-dark btn-lg disabled d-sm-b d-lg-ib buyable-full-width' " +
                     "and contains(text(),'Sold Out')]")).Displayed;
-                Thread.Sleep(2000);
+                //Thread.Sleep(2000);
+                if (soldOut)
+                {
+                    // add result
+                    result = $"Product at link {orderInfo.OrderLink} was SOLD OUT|FAILED";
+                    Console.WriteLine(result);
+                    driver.Quit();
+                    orderList.Remove(orderInfo);
+                    return result;
+                }
             }
             catch (NoSuchElementException e)
             {
                 Console.WriteLine(e);
-            }
-            if (soldOut)
-            {
-                // add result
-                result = $"Product at link {orderInfo.OrderLink} was SOLD OUT|FAILED";
-                Console.WriteLine(result);
-                driver.Quit();
-                orderList.Remove(orderInfo);
-                return result;
             }
 
             // Check size available
@@ -388,8 +388,8 @@ namespace WindowsCampApplication
             try
             {
                 sizeAvailable = driver.FindElement(
-                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Displayed;
-                Thread.Sleep(2000);
+                    By.XPath($"//button[text()='{orderInfo.Size}']")).Displayed;
+                //Thread.Sleep(2000);
             }
             catch (Exception e)
             {
