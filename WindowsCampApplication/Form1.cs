@@ -120,7 +120,7 @@ namespace WindowsCampApplication
                     // Add order to array
                     foreach (String s in sub_array)
                     {
-                        if (!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t"))
+                        if (!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
                         {
                             OrderInfo sub_order = new OrderInfo();
                             String[] info = s.Split('|');
@@ -148,7 +148,14 @@ namespace WindowsCampApplication
 
                             foreach (var i in info)
                             {
-                                orderInforTextBox.Text += i.ToString() + Environment.NewLine;
+                                if(!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
+                                {
+                                    orderInforTextBox.Text += i.ToString() + Environment.NewLine;
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
                             orderInforTextBox.Text += Environment.NewLine + Environment.NewLine;
                         }
@@ -227,10 +234,19 @@ namespace WindowsCampApplication
                         break;
                     }
                 }
-                message = $"Finsh Process. There are {orderList.Count} orders available.";
+                if (orderList.Count == 0)
+                {
+                    message = $"Finsh Process. There are {orderList.Count} orders available. Clear all orders information.";
+                    orderInforTextBox.Text = "";
+                }
+                else
+                {
+                    message = $"Finsh Process. There are {orderList.Count} orders available.";
+                }
                 MessageBoxButtons finbuttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Finish message", finbuttons, MessageBoxIcon.Information);
                 PROCESSING = 0;
+               
             }
         }
 
@@ -285,7 +301,7 @@ namespace WindowsCampApplication
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
-            Thread.Sleep(15000);
+            Thread.Sleep(8000);
 
             try
             {
@@ -500,7 +516,6 @@ namespace WindowsCampApplication
                                }
                               ));
                                Thread.Sleep(10000);
-
                            }
                            else
                            {
