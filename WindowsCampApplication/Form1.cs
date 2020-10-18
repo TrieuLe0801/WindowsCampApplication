@@ -316,9 +316,19 @@ namespace WindowsCampApplication
             }
 
             // get location
-            driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
-            Thread.Sleep(2000);
-
+            // Handle pin element
+            try
+            {
+                driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
+                Thread.Sleep(2000);
+            }catch(ElementClickInterceptedException e)
+            {
+                result = $"cannot click pin this link {orderInfo.OrderLink}|FAILED";
+                Console.WriteLine(result);
+                driver.Quit();
+                return result;
+            }
+            
             IWebElement alertLocation = null;
             try
             {
@@ -359,7 +369,7 @@ namespace WindowsCampApplication
                     "and contains(text(),'Sold Out')]")).Displayed;
                 Thread.Sleep(2000);
             }
-            catch (Exception e)
+            catch (NoSuchElementException e)
             {
                 Console.WriteLine(e);
             }
@@ -408,23 +418,33 @@ namespace WindowsCampApplication
                 else
                 {
                     // Click button size
-                    IWebElement sizebtn= driver.FindElement(
-                    By.XPath($"//button[text() = '{orderInfo.Size}']"));
-                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
-                    Actions action = new Actions(driver);
-                    action.MoveToElement(sizebtn).Click().Perform();
-                    Console.WriteLine("Choose button size " + driver.FindElement(
-                    By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
-                    Thread.Sleep(2000);
+                    try
+                    {
+                        IWebElement sizebtn = driver.FindElement(By.XPath($"//button[text() = '{orderInfo.Size}']"));
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
+                        Actions action = new Actions(driver);
+                        action.MoveToElement(sizebtn).Click().Perform();
+                        Console.WriteLine("Choose button size " + driver.FindElement(
+                        By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
+                        Thread.Sleep(2000);
 
-                    // Click add to cart
-                    IWebElement addCartBtn = driver.FindElement(By.XPath("//div[@class='mt2-sm mb6-sm prl0-lg fs14-sm']"));
-                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
-                    action = new Actions(driver);
-                    action.MoveToElement(addCartBtn).Click().Perform();
-                    Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
-                    Thread.Sleep(2000);
-
+                        // Click add to cart
+                        IWebElement addCartBtn = driver.FindElement(By.XPath("//div[@class='mt2-sm mb6-sm prl0-lg fs14-sm']"));
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
+                        action = new Actions(driver);
+                        action.MoveToElement(addCartBtn).Click().Perform();
+                        Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
+                        Thread.Sleep(2000);
+                    }
+                    catch(NoSuchElementException e)
+                    {
+                        result = $"Cannot choose size or add to cart {orderInfo.OrderLink}|FAILED";
+                        Console.WriteLine(result);
+                        driver.Quit();
+                        return result;
+                    }
+                    
+                    // Handle item load into cart
                     try
                     {
                         Thread.Sleep(2000);
@@ -435,7 +455,7 @@ namespace WindowsCampApplication
                     }
                     catch (Exception e)
                     {
-                        result = $"Cannot add to cart {orderInfo.OrderLink}";
+                        result = $"Cannot add item to cart {orderInfo.OrderLink}|FAILED";
                         Console.WriteLine(result);
                         driver.Quit();
                         return result;
@@ -471,8 +491,16 @@ namespace WindowsCampApplication
                     Thread.Sleep(2000);
 
                     //Insert First name and last name
-                    result = AutoFill(driver, orderInfo);
-
+                    try
+                    {
+                        result = AutoFill(driver, orderInfo);
+                    }catch(Exception e)
+                    {
+                        result = $"Cannot billing order {orderInfo.OrderLink}|FAILED";
+                        driver.Quit();
+                        return result;
+                    }
+                    
                     //result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
                     Console.WriteLine(result);
                     driver.Quit();
@@ -503,7 +531,12 @@ namespace WindowsCampApplication
                            int compare_datetime = DateTime.Compare(present, order.Time);
                            if (compare_datetime >= 0) // change to datetime to select order to pickup and order
                            {
-
+                               result = $"loading {order.OrderLink}...";
+                               resultTextBox.Invoke(new MethodInvoker(delegate
+                               {
+                                   resultTextBox.Text += result + Environment.NewLine;
+                               }
+                              ));
                                result = LoadDriver(order);
                                //remove_order.Add(order.OrderLink);
                                Console.WriteLine("Link: {0}, at Thread = {1}",
