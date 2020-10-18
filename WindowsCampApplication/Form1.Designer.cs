@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(webCampingWindows));
             this.orderInforTextBox = new System.Windows.Forms.RichTextBox();
             this.resultTextBox = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -36,6 +37,11 @@
             this.loadFileBtn = new System.Windows.Forms.Button();
             this.campBtn = new System.Windows.Forms.Button();
             this.headlessCheckbox = new System.Windows.Forms.CheckBox();
+            this.tabBox = new System.Windows.Forms.TextBox();
+            this.tabLb = new System.Windows.Forms.Label();
+            this.stopBtn = new System.Windows.Forms.Button();
+            this.clear_btn = new System.Windows.Forms.Button();
+            this.timerLb = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // orderInforTextBox
@@ -113,19 +119,77 @@
             // headlessCheckbox
             // 
             this.headlessCheckbox.AutoSize = true;
-            this.headlessCheckbox.Location = new System.Drawing.Point(484, 397);
+            this.headlessCheckbox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.headlessCheckbox.Location = new System.Drawing.Point(485, 399);
             this.headlessCheckbox.Name = "headlessCheckbox";
-            this.headlessCheckbox.Size = new System.Drawing.Size(89, 21);
+            this.headlessCheckbox.Size = new System.Drawing.Size(102, 24);
             this.headlessCheckbox.TabIndex = 4;
             this.headlessCheckbox.Text = "Headless";
             this.headlessCheckbox.UseVisualStyleBackColor = true;
             this.headlessCheckbox.CheckedChanged += new System.EventHandler(this.headlessCheckbox_CheckedChanged);
+            // 
+            // tabBox
+            // 
+            this.tabBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabBox.Location = new System.Drawing.Point(581, 288);
+            this.tabBox.Name = "tabBox";
+            this.tabBox.Size = new System.Drawing.Size(48, 27);
+            this.tabBox.TabIndex = 5;
+            this.tabBox.Text = "3";
+            // 
+            // tabLb
+            // 
+            this.tabLb.AutoSize = true;
+            this.tabLb.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabLb.Location = new System.Drawing.Point(429, 291);
+            this.tabLb.Name = "tabLb";
+            this.tabLb.Size = new System.Drawing.Size(132, 20);
+            this.tabLb.TabIndex = 6;
+            this.tabLb.Text = "Launched TAB";
+            // 
+            // stopBtn
+            // 
+            this.stopBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.stopBtn.Location = new System.Drawing.Point(433, 446);
+            this.stopBtn.Name = "stopBtn";
+            this.stopBtn.Size = new System.Drawing.Size(196, 48);
+            this.stopBtn.TabIndex = 7;
+            this.stopBtn.Text = "Stop";
+            this.stopBtn.UseVisualStyleBackColor = true;
+            this.stopBtn.Click += new System.EventHandler(this.stopBtn_Click);
+            // 
+            // clear_btn
+            // 
+            this.clear_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.clear_btn.Location = new System.Drawing.Point(691, 606);
+            this.clear_btn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.clear_btn.Name = "clear_btn";
+            this.clear_btn.Size = new System.Drawing.Size(316, 38);
+            this.clear_btn.TabIndex = 8;
+            this.clear_btn.Text = "Clear";
+            this.clear_btn.UseVisualStyleBackColor = true;
+            this.clear_btn.Click += new System.EventHandler(this.clear_btn_Click);
+            // 
+            // timerLb
+            // 
+            this.timerLb.AutoSize = true;
+            this.timerLb.Font = new System.Drawing.Font("Microsoft Sans Serif", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timerLb.Location = new System.Drawing.Point(430, 207);
+            this.timerLb.Name = "timerLb";
+            this.timerLb.Size = new System.Drawing.Size(198, 51);
+            this.timerLb.TabIndex = 10;
+            this.timerLb.Text = "00:00:00";
             // 
             // webCampingWindows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1061, 702);
+            this.Controls.Add(this.timerLb);
+            this.Controls.Add(this.clear_btn);
+            this.Controls.Add(this.stopBtn);
+            this.Controls.Add(this.tabLb);
+            this.Controls.Add(this.tabBox);
             this.Controls.Add(this.headlessCheckbox);
             this.Controls.Add(this.campBtn);
             this.Controls.Add(this.loadFileBtn);
@@ -134,6 +198,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.resultTextBox);
             this.Controls.Add(this.orderInforTextBox);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "webCampingWindows";
             this.Text = "web-camping";
@@ -152,6 +217,11 @@
         private System.Windows.Forms.Button loadFileBtn;
         private System.Windows.Forms.Button campBtn;
         private System.Windows.Forms.CheckBox headlessCheckbox;
+        private System.Windows.Forms.TextBox tabBox;
+        private System.Windows.Forms.Label tabLb;
+        private System.Windows.Forms.Button stopBtn;
+        private System.Windows.Forms.Button clear_btn;
+        private System.Windows.Forms.Label timerLb;
     }
 }
 
