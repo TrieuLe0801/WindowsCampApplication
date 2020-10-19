@@ -12,6 +12,10 @@ Application helps camp and order automatically (Nike.com)
 - SystemClock.0.0.4
 - TimeZoneConverter.3.3.0
 - TimeZoneConverter.Posix.2.2.0
+## Install
+- Download AppSetup.rar in AppSetup folder.
+- Extract AppSetup.rar.
+- Choose setup.exe to install and setup to use.
 ## Image
 ![alt-text](https://github.com/TrieuLe0801/WindowsCampApplication/blob/master/1.JPG)
 ## Buttons
