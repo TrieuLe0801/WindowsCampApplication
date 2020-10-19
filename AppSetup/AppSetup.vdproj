@@ -5815,7 +5815,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Nike Camping"
         "ProductCode" = "8:{9B764CF6-BADE-4306-9ECC-68B585D6C216}"
-        "PackageCode" = "8:{8D66B725-560A-4544-B52B-9EA05DCD57F7}"
+        "PackageCode" = "8:{BC762331-2CBF-40F2-A188-C487EDB7A7A5}"
         "UpgradeCode" = "8:{745CC62C-7409-46EA-A0E4-D2C4D8AD355E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -5946,7 +5946,7 @@
             "Target" = "8:_40F6F356A14248CDA92D680549215F48"
             "Folder" = "8:_D007EA6756B943E180358461A5B9870C"
             "WorkingFolder" = "8:_9A7DDF21D67140EFBE465635B88E0FF7"
-            "Icon" = "8:"
+            "Icon" = "8:_D2E5C3EEA1DD458B9456386D72C9A961"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_B263230089574015BED723E0F5C1F97B"
@@ -5960,7 +5960,7 @@
             "Target" = "8:_40F6F356A14248CDA92D680549215F48"
             "Folder" = "8:_96D118E79FAC4BC7BD544AB9F74819AF"
             "WorkingFolder" = "8:_9A7DDF21D67140EFBE465635B88E0FF7"
-            "Icon" = "8:"
+            "Icon" = "8:_D2E5C3EEA1DD458B9456386D72C9A961"
             "Feature" = "8:"
             }
         }
