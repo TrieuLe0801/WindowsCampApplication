@@ -54,19 +54,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>iconfinder_Ladybug_2998124.ico</ApplicationIcon>
+    <ApplicationIcon>icons8_trainers_1.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>4E45F660C21923A620734D432F329584D57A1ECC</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>9C67037EEDC50FB167ED6A1957AED45C64508A85</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>WindowsCampApplication_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>WindowsCampApplication_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>WindowsCampApplication.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assert, Version=4.2.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -147,12 +150,14 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="WindowsCampApplication_1_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="iconfinder_Ladybug_2998124.ico" />
+    <Content Include="icons8_trainers_1.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
