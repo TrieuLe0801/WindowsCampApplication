@@ -51,9 +51,11 @@ namespace WindowsCampApplication
         public static int HEADLESS = 0;
         public static int PROCESSING = 0;
         public static int TAB = 0;
-        public static string INITIAL_PATH = Path.Combine(Directory.GetParent(
-                Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
-                @"WindowsCampApplication");
+        public static string INITIAL_PATH = Directory.GetParent(Directory.GetParent(Directory.GetCurrentDirectory()).FullName).Parent.FullName;
+            //Path.Combine(Directory.GetParent(
+            //    Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
+            //    @"WindowsCampApplication");
+       
         public static Object _lock = new Object();
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
         public static List<CountryInfo> countryCodeList = new List<CountryInfo>();
