@@ -370,9 +370,9 @@ ZW|Zimbabwe";
                         sub_array = fileContent.Split('\n');
                     }
 
-                    String message = $"App will remove orders which do not have important attributes (link, time, country, size) or lack of attributes.";
-                    MessageBoxButtons buttons = MessageBoxButtons.OK;
-                    MessageBox.Show(message, "Start message", buttons, MessageBoxIcon.Information);
+                    //String message = $"App will remove orders which do not have important attributes (link, time, country, size) or lack of attributes.";
+                    //MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    //MessageBox.Show(message, "Start message", buttons, MessageBoxIcon.Information);
 
                     // Add order to array
                     foreach (String s in sub_array)
@@ -436,16 +436,26 @@ ZW|Zimbabwe";
                     //Check file is empty or not
                     if(orderList.Count == 0)
                     {
-                        message = "List order is empty. Please add file again.";
-                        buttons = MessageBoxButtons.OK;
+                        String message = "List order is empty. Please add file again.";
+                        MessageBoxButtons buttons = MessageBoxButtons.OK;
                         MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
                         return;
                     }
                     else
                     {
-                        message = $"List order has {orderList.Count()} items.";
-                        buttons = MessageBoxButtons.OK;
-                        MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
+                        if(orderList.Count < sub_array.Length)
+                        {
+                            String message = $"List order has {orderList.Count()} items. App will remove orders which do not have important attributes (link, time, country, size) or lack of attributes.";
+                            MessageBoxButtons buttons = MessageBoxButtons.OK;
+                            MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            String message = $"List order has {orderList.Count()} items.";
+                            MessageBoxButtons buttons = MessageBoxButtons.OK;
+                            MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
+                        }
+                       
                     }
                 }
             }
