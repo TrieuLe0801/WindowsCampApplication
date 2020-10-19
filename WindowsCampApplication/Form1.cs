@@ -823,6 +823,8 @@ ZW|Zimbabwe";
             parlOps.CancellationToken = token;
             parlOps.MaxDegreeOfParallelism = TAB;
             string result = "";
+            DateTime past = DateTime.Now;
+            TimeSpan diff;
             try
             {
                 try
@@ -867,6 +869,18 @@ ZW|Zimbabwe";
                                }
                               ));
                                Thread.Sleep(10000);
+                           }
+                           // clear after 15 minutes
+                           DateTime max = DateTime.Now;
+                           diff = max - past;
+                           if((int)diff.TotalMilliseconds >= 15 * 60000)
+                           {
+                               past = max;
+                               resultTextBox.Invoke(new MethodInvoker(delegate
+                               {
+                                   resultTextBox.Text = "";
+                               }
+                             ));
                            }
                        }
                    );
