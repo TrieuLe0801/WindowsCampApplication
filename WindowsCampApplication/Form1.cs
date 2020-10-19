@@ -721,7 +721,7 @@ namespace WindowsCampApplication
             var address = driver.FindElement(By.Id("address1"));
             address.SendKeys(order.Address);
             address.Submit();
-            address.SendKeys(Keys.Enter);
+            //address.SendKeys(Keys.Enter);
             Console.WriteLine($"Add Address: {order.Address}");
             Thread.Sleep(2000);
 
@@ -792,11 +792,65 @@ namespace WindowsCampApplication
             driver.SwitchTo().DefaultContent();
             Thread.Sleep(2000);
 
+            //action = new Actions(driver);
+            //action.SendKeys(OpenQA.Selenium.Keys.End).Build().Perform();
+
+            if (!String.IsNullOrWhiteSpace(order.SecondFistName) &&
+               !String.IsNullOrWhiteSpace(order.SecondLastName) &&
+               !String.IsNullOrWhiteSpace(order.SecondAddress) &&
+               !String.IsNullOrWhiteSpace(order.SecondCity) &&
+               !String.IsNullOrWhiteSpace(order.SecondStateCode) &&
+               !String.IsNullOrWhiteSpace(order.SecondPostalCode))
+            {
+                //Click tick box
+                driver.FindElement(By.XPath("//label[@for='billingAddress']")).Click();
+                Thread.Sleep(2000);
+
+                //add second first name
+                var secondFirstName = driver.FindElement(By.Id("firstName"));
+                secondFirstName.SendKeys(order.SecondFistName);
+                secondFirstName.Submit();
+                Thread.Sleep(2000);
+
+                // add last name
+                var secondLastName = driver.FindElement(By.Id("lastName"));
+                secondLastName.SendKeys(order.SecondLastName);
+                secondLastName.Submit();
+                Thread.Sleep(2000);
+
+                // add second address
+                var secondAddress = driver.FindElement(By.Id("address1"));
+                secondAddress.SendKeys(order.SecondAddress);
+                secondAddress.Submit();
+                //address.SendKeys(Keys.Enter);
+                Thread.Sleep(2000);
+
+                // add second city
+                var secondCity = driver.FindElement(By.Id("city"));
+                secondCity.SendKeys(order.SecondCity);
+                secondCity.Submit();
+                Thread.Sleep(2000);
+
+                // add second state
+                driver.FindElement(By.Id("state")).Click();
+                Thread.Sleep(2000);
+                var secondState = driver.FindElement(By.XPath($"//option[@value='{order.SecondStateCode}']"));
+                secondState.Click();
+                Thread.Sleep(2000);
+
+                // add second postalcode
+                var secondPostalCode = driver.FindElement(By.Id("postalCode"));
+                secondPostalCode.SendKeys(order.SecondPostalCode);
+                secondPostalCode.Submit();
+                Thread.Sleep(2000);
+            }
+
             try
             {
                 var placeOrder = driver.FindElement(By.XPath("//button[@class='d-lg-ib fs14-sm ncss-brand " +
                 "ncss-btn-accent pb2-lg pb3-sm prl5-sm " +
                 "pt2-lg pt3-sm u-uppercase' and text() = 'Place Order']"));
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", placeOrder);
                 if (placeOrder.Enabled)
                 {
                     placeOrder.Click();
@@ -813,6 +867,7 @@ namespace WindowsCampApplication
 
             }
             var placeOrder1 = driver.FindElement(By.XPath("//button[text()='Continue To Order Review']"));
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", placeOrder1);
             if (placeOrder1.Enabled)
             {
                 placeOrder1.Click();
