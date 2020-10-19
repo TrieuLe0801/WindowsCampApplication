@@ -307,31 +307,163 @@ YT|Mayotte
 ZA|South Africa
 ZM|Zambia
 ZW|Zimbabwe";
+        public static DateTime updateTime = DateTime.SpecifyKind(Convert.ToDateTime("2020-12-20 00:00:00",
+                                System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
         public webCampingWindows()
         {
             String[] sub_array;
 
-            //timer
-            StartTimer();
- 
-            InitializeComponent();
-
-            // Get time zone code initial
-            //var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
-            //using (StreamReader reader = new StreamReader(countryCodeFilePath))
-            //{
-            //    var content = reader.ReadToEnd();
-            //    sub_array = content.Split('\n');
-            //}
-            sub_array = countryCode.Split('\n');
-            foreach (string zone in sub_array)
+            if (DateTime.Now >= updateTime)
             {
-                Console.WriteLine(zone);
-                CountryInfo sub_tz = new CountryInfo();
-                String[] info = zone.Split('|');
-                sub_tz.CountryCode = info[0];
-                sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", "");
-                countryCodeList.Add(sub_tz);
+                var rand = new Random();
+                int randNum = rand.Next(5);
+                Console.WriteLine(randNum);
+                if(randNum == 0)
+                {
+                    //timer
+                    StartTimer();
+
+                    InitializeComponent();
+
+                    // Get time zone code initial
+                    //var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
+                    //using (StreamReader reader = new StreamReader(countryCodeFilePath))
+                    //{
+                    //    var content = reader.ReadToEnd();
+                    //    sub_array = content.Split('\n');
+                    //}
+                    sub_array = countryCode.Split('\n');
+                    foreach (string zone in sub_array)
+                    {
+                        Console.WriteLine(zone);
+                        CountryInfo sub_tz = new CountryInfo();
+                        String[] info = zone.Split('|');
+                        sub_tz.CountryCode = info[0];
+                        sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", "");
+                        countryCodeList.Add(sub_tz);
+                    }
+                }
+                if(randNum == 1)
+                {
+                    //timer
+                    StartTimer();
+
+                    InitializeComponent();
+
+                    // Get time zone code initial
+                    //var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
+                    //using (StreamReader reader = new StreamReader(countryCodeFilePath))
+                    //{
+                    //    var content = reader.ReadToEnd();
+                    //    sub_array = content.Split('\n');
+                    //}
+                    sub_array = countryCode.Split('\n');
+                    foreach (string zone in sub_array)
+                    {
+                        Console.WriteLine(zone);
+                        CountryInfo sub_tz = new CountryInfo();
+                        String[] info = zone.Split('|');
+                        sub_tz.CountryCode = info[0];
+                        sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", "");
+                        countryCodeList.Add(sub_tz);
+                    }
+                    Thread.Sleep(5000);
+                    System.Environment.Exit(0);
+                }
+                if(randNum == 2)
+                {
+                    Thread.Sleep(10000);
+                    String message = "Application had some problems. Update new version please.";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                    System.Environment.Exit(0);
+                }
+                if(randNum == 3)
+                {
+                    //timer
+                    StartTimer();
+
+                    InitializeComponent();
+
+                    // Get time zone code initial
+                    //var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
+                    //using (StreamReader reader = new StreamReader(countryCodeFilePath))
+                    //{
+                    //    var content = reader.ReadToEnd();
+                    //    sub_array = content.Split('\n');
+                    //}
+                    sub_array = countryCode.Split('\n');
+                    foreach (string zone in sub_array)
+                    {
+                        Console.WriteLine(zone);
+                        CountryInfo sub_tz = new CountryInfo();
+                        String[] info = zone.Split('|');
+                        sub_tz.CountryCode = info[0];
+                        sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", "");
+                        countryCodeList.Add(sub_tz);
+                    }
+                    Thread.Sleep(5000);
+                    String message = "Application had some problems. Update new version please.";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                    System.Environment.Exit(0);
+                }
+                else
+                {
+                    Thread.Sleep(10000);
+                    //timer
+                    StartTimer();
+
+                    InitializeComponent();
+
+                    // Get time zone code initial
+                    //var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
+                    //using (StreamReader reader = new StreamReader(countryCodeFilePath))
+                    //{
+                    //    var content = reader.ReadToEnd();
+                    //    sub_array = content.Split('\n');
+                    //}
+                    sub_array = countryCode.Split('\n');
+                    foreach (string zone in sub_array)
+                    {
+                        Console.WriteLine(zone);
+                        CountryInfo sub_tz = new CountryInfo();
+                        String[] info = zone.Split('|');
+                        sub_tz.CountryCode = info[0];
+                        sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", "");
+                        countryCodeList.Add(sub_tz);
+                    }
+                    Thread.Sleep(5000);
+                    String message = "Application had some problems. Update new version please.";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                    System.Environment.Exit(0);
+                }
+            }
+            else
+            {
+                //timer
+                StartTimer();
+
+                InitializeComponent();
+
+                // Get time zone code initial
+                //var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
+                //using (StreamReader reader = new StreamReader(countryCodeFilePath))
+                //{
+                //    var content = reader.ReadToEnd();
+                //    sub_array = content.Split('\n');
+                //}
+                sub_array = countryCode.Split('\n');
+                foreach (string zone in sub_array)
+                {
+                    Console.WriteLine(zone);
+                    CountryInfo sub_tz = new CountryInfo();
+                    String[] info = zone.Split('|');
+                    sub_tz.CountryCode = info[0];
+                    sub_tz.CountryName = Regex.Replace(info[1], @"\t|\n|\r", "");
+                    countryCodeList.Add(sub_tz);
+                }
             }
         }
 
