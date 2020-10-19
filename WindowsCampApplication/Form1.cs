@@ -51,9 +51,11 @@ namespace WindowsCampApplication
         public static int HEADLESS = 0;
         public static int PROCESSING = 0;
         public static int TAB = 0;
-        public static string INITIAL_PATH = Path.Combine(Directory.GetParent(
-                Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
-                @"WindowsCampApplication");
+        public static string INITIAL_PATH = Directory.GetParent(Directory.GetParent(Directory.GetCurrentDirectory()).FullName).Parent.FullName;
+            //Path.Combine(Directory.GetParent(
+            //    Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
+            //    @"WindowsCampApplication");
+       
         public static Object _lock = new Object();
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
         public static List<CountryInfo> countryCodeList = new List<CountryInfo>();
@@ -94,6 +96,8 @@ namespace WindowsCampApplication
                 return;
             }
             String[] sub_array;
+            orderList = new List<OrderInfo>();
+            orderInforTextBox.Text = "";
             var filePath = string.Empty;
             var fileContent = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -117,48 +121,82 @@ namespace WindowsCampApplication
                         sub_array = fileContent.Split('\n');
                     }
 
+                    String message = $"App will remove orders which do not have important attributes (link, time, country, size) or lack of attributes.";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, "Start message", buttons, MessageBoxIcon.Information);
+
                     // Add order to array
                     foreach (String s in sub_array)
                     {
-                        if (!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
+                        if (!String.IsNullOrEmpty(s) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
                         {
                             OrderInfo sub_order = new OrderInfo();
                             String[] info = s.Split('|');
+                            if(info.Length < 21 || 
+                                String.IsNullOrWhiteSpace(info[0]) || 
+                                String.IsNullOrWhiteSpace(info[1]) || 
+                                String.IsNullOrWhiteSpace(info[2]) ||
+                                String.IsNullOrWhiteSpace(info[3]))
+                            {
+                                Console.WriteLine("This elmement does not have enough attributes");
+                                continue;
+                            }
                             sub_order.OrderLink = info[0];
                             sub_order.Size = info[1];
                             sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
                                 System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
                             sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
-                            sub_order.FirstName = info[4];
-                            sub_order.LastName = info[5];
-                            sub_order.Address = info[6];
-                            sub_order.City = info[7];
-                            sub_order.StateCode = info[8];
-                            sub_order.PostalCode = info[9];
-                            sub_order.Email = @"" + info[10];
-                            sub_order.Phone = info[11];
-                            sub_order.Card = info[12];
-                            sub_order.ExDate = info[13];
+                            sub_order.FirstName = Regex.Replace(info[4], @"\t|\n|\r", "");
+                            sub_order.LastName = Regex.Replace(info[5], @"\t|\n|\r", "");
+                            sub_order.Address = Regex.Replace(info[6], @"\t|\n|\r", "");
+                            sub_order.City = Regex.Replace(info[7], @"\t|\n|\r", "");
+                            sub_order.StateCode = Regex.Replace(info[8], @"\t|\n|\r", "");
+                            sub_order.PostalCode = Regex.Replace(info[9], @"\t|\n|\r", "");
+                            sub_order.Email = @"" + Regex.Replace(info[10], @"\t|\n|\r", ""); ;
+                            sub_order.Phone = Regex.Replace(info[11], @"\t|\n|\r", "");
+                            sub_order.Card = Regex.Replace(info[12], @"\t|\n|\r", "");
+                            sub_order.ExDate = Regex.Replace(info[13], @"\t|\n|\r", "");
                             sub_order.Security = Regex.Replace(info[14], @"\t|\n|\r", "");
+                            sub_order.SecondFistName = Regex.Replace(info[15], @"\t|\n|\r", "");
+                            sub_order.SecondLastName = Regex.Replace(info[16], @"\t|\n|\r", "");
+                            sub_order.SecondAddress = Regex.Replace(info[17], @"\t|\n|\r", "");
+                            sub_order.SecondCity = Regex.Replace(info[18], @"\t|\n|\r", "");
+                            sub_order.SecondStateCode = Regex.Replace(info[19], @"\t|\n|\r", "");
+                            sub_order.SecondPostalCode = Regex.Replace(info[20], @"\t|\n|\r", "");
                             orderList.Add(sub_order);
 
                             //test
-                            Console.WriteLine(sub_order.OrderLink);
-                            Console.WriteLine(sub_order.ExDate);
+                            //Console.WriteLine(sub_order.OrderLink);
+                            //Console.WriteLine(sub_order.ExDate);
 
                             foreach (var i in info)
                             {
-                                if(!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
+                                if (!String.IsNullOrEmpty(i) && !i.Equals("\r") && !i.Equals("\n") && !i.Equals("\t") && !i.Equals(""))
                                 {
                                     orderInforTextBox.Text += i.ToString() + Environment.NewLine;
                                 }
                                 else
                                 {
-                                    break;
+                                    continue;
                                 }
                             }
-                            orderInforTextBox.Text += Environment.NewLine + Environment.NewLine;
+                            orderInforTextBox.Text += Environment.NewLine;
                         }
+                    }
+
+                    //Check file is empty or not
+                    if(orderList.Count == 0)
+                    {
+                        message = "List order is empty. Please add file again.";
+                        buttons = MessageBoxButtons.OK;
+                        MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    else
+                    {
+                        message = $"List order has {orderList.Count()} items.";
+                        buttons = MessageBoxButtons.OK;
+                        MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
                     }
                 }
             }
@@ -356,6 +394,15 @@ namespace WindowsCampApplication
             Thread.Sleep(5000);
 
             // Load item page
+            //if(orderInfo.OrderLink.Equals(null)||orderInfo.OrderLink.Equals(""))
+            //{
+            //    result = "There are no link|FAILED";
+            //    Console.WriteLine(result);
+            //    driver.Quit();
+            //    orderList.Remove(orderInfo);
+            //    return result;
+            //}
+
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine($"Load page {orderInfo.OrderLink}");
             Thread.Sleep(3000);
@@ -674,7 +721,7 @@ namespace WindowsCampApplication
             var address = driver.FindElement(By.Id("address1"));
             address.SendKeys(order.Address);
             address.Submit();
-            address.SendKeys(Keys.Enter);
+            //address.SendKeys(Keys.Enter);
             Console.WriteLine($"Add Address: {order.Address}");
             Thread.Sleep(2000);
 
@@ -745,11 +792,65 @@ namespace WindowsCampApplication
             driver.SwitchTo().DefaultContent();
             Thread.Sleep(2000);
 
+            //action = new Actions(driver);
+            //action.SendKeys(OpenQA.Selenium.Keys.End).Build().Perform();
+
+            if (!String.IsNullOrWhiteSpace(order.SecondFistName) &&
+               !String.IsNullOrWhiteSpace(order.SecondLastName) &&
+               !String.IsNullOrWhiteSpace(order.SecondAddress) &&
+               !String.IsNullOrWhiteSpace(order.SecondCity) &&
+               !String.IsNullOrWhiteSpace(order.SecondStateCode) &&
+               !String.IsNullOrWhiteSpace(order.SecondPostalCode))
+            {
+                //Click tick box
+                driver.FindElement(By.XPath("//label[@for='billingAddress']")).Click();
+                Thread.Sleep(2000);
+
+                //add second first name
+                var secondFirstName = driver.FindElement(By.Id("firstName"));
+                secondFirstName.SendKeys(order.SecondFistName);
+                secondFirstName.Submit();
+                Thread.Sleep(2000);
+
+                // add last name
+                var secondLastName = driver.FindElement(By.Id("lastName"));
+                secondLastName.SendKeys(order.SecondLastName);
+                secondLastName.Submit();
+                Thread.Sleep(2000);
+
+                // add second address
+                var secondAddress = driver.FindElement(By.Id("address1"));
+                secondAddress.SendKeys(order.SecondAddress);
+                secondAddress.Submit();
+                //address.SendKeys(Keys.Enter);
+                Thread.Sleep(2000);
+
+                // add second city
+                var secondCity = driver.FindElement(By.Id("city"));
+                secondCity.SendKeys(order.SecondCity);
+                secondCity.Submit();
+                Thread.Sleep(2000);
+
+                // add second state
+                driver.FindElement(By.Id("state")).Click();
+                Thread.Sleep(2000);
+                var secondState = driver.FindElement(By.XPath($"//option[@value='{order.SecondStateCode}']"));
+                secondState.Click();
+                Thread.Sleep(2000);
+
+                // add second postalcode
+                var secondPostalCode = driver.FindElement(By.Id("postalCode"));
+                secondPostalCode.SendKeys(order.SecondPostalCode);
+                secondPostalCode.Submit();
+                Thread.Sleep(2000);
+            }
+
             try
             {
                 var placeOrder = driver.FindElement(By.XPath("//button[@class='d-lg-ib fs14-sm ncss-brand " +
                 "ncss-btn-accent pb2-lg pb3-sm prl5-sm " +
                 "pt2-lg pt3-sm u-uppercase' and text() = 'Place Order']"));
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", placeOrder);
                 if (placeOrder.Enabled)
                 {
                     placeOrder.Click();
@@ -766,6 +867,7 @@ namespace WindowsCampApplication
 
             }
             var placeOrder1 = driver.FindElement(By.XPath("//button[text()='Continue To Order Review']"));
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", placeOrder1);
             if (placeOrder1.Enabled)
             {
                 placeOrder1.Click();
