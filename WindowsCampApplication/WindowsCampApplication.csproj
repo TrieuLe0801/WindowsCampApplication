@@ -139,6 +139,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -158,6 +159,8 @@
   <ItemGroup>
     <Content Include="iconfinder_Ladybug_2998124.ico" />
     <Content Include="icons8_trainers_1.ico" />
+    <None Include="Resources\78a45eb3fc20ad8c5116930a112ffdb1.png" />
+    <None Include="Resources\74510faf408cce2e4d32804780bc37c6.jpg" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

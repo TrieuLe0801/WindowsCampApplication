@@ -65,125 +65,151 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.label1.Location = new System.Drawing.Point(267, 30);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(495, 38);
+            this.label1.Size = new System.Drawing.Size(470, 45);
             this.label1.TabIndex = 1;
             this.label1.Text = "WEB-CAMPING APPLICATON";
             // 
             // orderLabel
             // 
             this.orderLabel.AutoSize = true;
-            this.orderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.orderLabel.BackColor = System.Drawing.Color.Black;
+            this.orderLabel.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.orderLabel.ForeColor = System.Drawing.Color.Transparent;
             this.orderLabel.Location = new System.Drawing.Point(53, 114);
             this.orderLabel.Name = "orderLabel";
-            this.orderLabel.Size = new System.Drawing.Size(173, 24);
+            this.orderLabel.Size = new System.Drawing.Size(177, 25);
             this.orderLabel.TabIndex = 2;
             this.orderLabel.Text = "Order Information";
             // 
             // resultLabel
             // 
             this.resultLabel.AutoSize = true;
-            this.resultLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.resultLabel.BackColor = System.Drawing.Color.Black;
+            this.resultLabel.Font = new System.Drawing.Font("Segoe UI", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.resultLabel.ForeColor = System.Drawing.Color.Transparent;
             this.resultLabel.Location = new System.Drawing.Point(687, 114);
             this.resultLabel.Name = "resultLabel";
-            this.resultLabel.Size = new System.Drawing.Size(177, 24);
+            this.resultLabel.Size = new System.Drawing.Size(179, 25);
             this.resultLabel.TabIndex = 2;
             this.resultLabel.Text = "Result Information";
             // 
             // loadFileBtn
             // 
-            this.loadFileBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.loadFileBtn.BackColor = System.Drawing.Color.DimGray;
+            this.loadFileBtn.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.loadFileBtn.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.loadFileBtn.Location = new System.Drawing.Point(57, 606);
             this.loadFileBtn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.loadFileBtn.Name = "loadFileBtn";
             this.loadFileBtn.Size = new System.Drawing.Size(316, 38);
             this.loadFileBtn.TabIndex = 3;
             this.loadFileBtn.Text = "Load File";
-            this.loadFileBtn.UseVisualStyleBackColor = true;
+            this.loadFileBtn.UseVisualStyleBackColor = false;
             this.loadFileBtn.Click += new System.EventHandler(this.loadFileBtn_Click);
             // 
             // campBtn
             // 
-            this.campBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.campBtn.BackColor = System.Drawing.Color.DimGray;
+            this.campBtn.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.campBtn.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.campBtn.Location = new System.Drawing.Point(433, 336);
             this.campBtn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.campBtn.Name = "campBtn";
             this.campBtn.Size = new System.Drawing.Size(196, 43);
             this.campBtn.TabIndex = 3;
             this.campBtn.Text = "Camping";
-            this.campBtn.UseVisualStyleBackColor = true;
+            this.campBtn.UseVisualStyleBackColor = false;
             this.campBtn.Click += new System.EventHandler(this.campBtn_Click);
             // 
             // headlessCheckbox
             // 
             this.headlessCheckbox.AutoSize = true;
-            this.headlessCheckbox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.headlessCheckbox.BackColor = System.Drawing.Color.Transparent;
+            this.headlessCheckbox.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.headlessCheckbox.ForeColor = System.Drawing.Color.Transparent;
             this.headlessCheckbox.Location = new System.Drawing.Point(485, 399);
             this.headlessCheckbox.Name = "headlessCheckbox";
-            this.headlessCheckbox.Size = new System.Drawing.Size(102, 24);
+            this.headlessCheckbox.Size = new System.Drawing.Size(102, 27);
             this.headlessCheckbox.TabIndex = 4;
             this.headlessCheckbox.Text = "Headless";
-            this.headlessCheckbox.UseVisualStyleBackColor = true;
+            this.headlessCheckbox.UseVisualStyleBackColor = false;
             this.headlessCheckbox.CheckedChanged += new System.EventHandler(this.headlessCheckbox_CheckedChanged);
             // 
             // tabBox
             // 
-            this.tabBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabBox.BackColor = System.Drawing.Color.Black;
+            this.tabBox.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabBox.ForeColor = System.Drawing.Color.Transparent;
             this.tabBox.Location = new System.Drawing.Point(581, 288);
             this.tabBox.Name = "tabBox";
-            this.tabBox.Size = new System.Drawing.Size(48, 27);
+            this.tabBox.Size = new System.Drawing.Size(48, 30);
             this.tabBox.TabIndex = 5;
             this.tabBox.Text = "3";
+            this.tabBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // tabLb
             // 
             this.tabLb.AutoSize = true;
-            this.tabLb.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabLb.BackColor = System.Drawing.Color.Transparent;
+            this.tabLb.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tabLb.ForeColor = System.Drawing.Color.Transparent;
             this.tabLb.Location = new System.Drawing.Point(429, 291);
             this.tabLb.Name = "tabLb";
-            this.tabLb.Size = new System.Drawing.Size(132, 20);
+            this.tabLb.Size = new System.Drawing.Size(123, 23);
             this.tabLb.TabIndex = 6;
             this.tabLb.Text = "Launched TAB";
             // 
             // stopBtn
             // 
-            this.stopBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.stopBtn.BackColor = System.Drawing.Color.DimGray;
+            this.stopBtn.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.stopBtn.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.stopBtn.Location = new System.Drawing.Point(433, 446);
             this.stopBtn.Name = "stopBtn";
             this.stopBtn.Size = new System.Drawing.Size(196, 48);
             this.stopBtn.TabIndex = 7;
             this.stopBtn.Text = "Stop";
-            this.stopBtn.UseVisualStyleBackColor = true;
+            this.stopBtn.UseVisualStyleBackColor = false;
             this.stopBtn.Click += new System.EventHandler(this.stopBtn_Click);
             // 
             // clear_btn
             // 
-            this.clear_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.clear_btn.BackColor = System.Drawing.Color.DimGray;
+            this.clear_btn.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.clear_btn.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.clear_btn.Location = new System.Drawing.Point(691, 606);
             this.clear_btn.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.clear_btn.Name = "clear_btn";
             this.clear_btn.Size = new System.Drawing.Size(316, 38);
             this.clear_btn.TabIndex = 8;
             this.clear_btn.Text = "Clear";
-            this.clear_btn.UseVisualStyleBackColor = true;
+            this.clear_btn.UseVisualStyleBackColor = false;
             this.clear_btn.Click += new System.EventHandler(this.clear_btn_Click);
             // 
             // timerLb
             // 
             this.timerLb.AutoSize = true;
-            this.timerLb.Font = new System.Drawing.Font("Microsoft Sans Serif", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timerLb.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.timerLb.Font = new System.Drawing.Font("Segoe UI", 25.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timerLb.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.timerLb.Location = new System.Drawing.Point(430, 207);
             this.timerLb.Name = "timerLb";
-            this.timerLb.Size = new System.Drawing.Size(198, 51);
+            this.timerLb.Size = new System.Drawing.Size(199, 59);
             this.timerLb.TabIndex = 10;
             this.timerLb.Text = "00:00:00";
+            this.timerLb.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // webCampingWindows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.BackgroundImage = global::WindowsCampApplication.Properties.Resources._78a45eb3fc20ad8c5116930a112ffdb1;
             this.ClientSize = new System.Drawing.Size(1061, 702);
             this.Controls.Add(this.timerLb);
             this.Controls.Add(this.clear_btn);
