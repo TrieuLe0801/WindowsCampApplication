@@ -51,7 +51,7 @@ namespace WindowsCampApplication
         public static int HEADLESS = 0;
         public static int PROCESSING = 0;
         public static int TAB = 0;
-        public static string INITIAL_PATH = Directory.GetParent(Directory.GetParent(Directory.GetCurrentDirectory()).FullName).Parent.FullName;
+        //public static string INITIAL_PATH = Directory.GetParent(Directory.GetParent(Directory.GetCurrentDirectory()).FullName).Parent.FullName;
             //Path.Combine(Directory.GetParent(
             //    Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName).Parent.FullName,
             //    @"WindowsCampApplication");
@@ -60,6 +60,253 @@ namespace WindowsCampApplication
         private static CancellationTokenSource tokenSource = new CancellationTokenSource();
         public static List<CountryInfo> countryCodeList = new List<CountryInfo>();
         public static Timer t = new Timer();
+        public static string countryCode = @"AD|Andorra
+AE|United Arab Emirates
+AF|Afghanistan
+AG|Antigua & Barbuda
+AI|Anguilla
+AL|Albania
+AM|Armenia
+AO|Angola
+AQ|Antarctica
+AR|Argentina
+AS|Samoa (American)
+AT|Austria
+AU|Australia
+AW|Aruba
+AX|Aaland Islands
+AZ|Azerbaijan
+BA|Bosnia & Herzegovina
+BB|Barbados
+BD|Bangladesh
+BE|Belgium
+BF|Burkina Faso
+BG|Bulgaria
+BH|Bahrain
+BI|Burundi
+BJ|Benin
+BL|St Barthelemy
+BM|Bermuda
+BN|Brunei
+BO|Bolivia
+BQ|Caribbean Netherlands
+BR|Brazil
+BS|Bahamas
+BT|Bhutan
+BW|Botswana
+BY|Belarus
+BZ|Belize
+CA|Canada
+CC|Cocos (Keeling) Islands
+CD|Congo (Dem. Rep.)
+CF|Central African Rep.
+CG|Congo (Rep.)
+CH|Switzerland
+CI|Cote d'Ivoire
+CK|Cook Islands
+CL|Chile
+CM|Cameroon
+CN|China
+CO|Colombia
+CR|Costa Rica
+CU|Cuba
+CV|Cape Verde
+CW|Curacao
+CX|Christmas Island
+CY|Cyprus
+CZ|Czech Republic
+DE|Germany
+DJ|Djibouti
+DK|Denmark
+DM|Dominica
+DO|Dominican Republic
+DZ|Algeria
+EC|Ecuador
+EE|Estonia
+EG|Egypt
+EH|Western Sahara
+ER|Eritrea
+ES|Spain
+ET|Ethiopia
+FI|Finland
+FJ|Fiji
+FK|Falkland Islands
+FM|Micronesia
+FO|Faroe Islands
+FR|France
+GA|Gabon
+GB|Britain (UK)
+GD|Grenada
+GE|Georgia
+GF|French Guiana
+GG|Guernsey
+GH|Ghana
+GI|Gibraltar
+GL|Greenland
+GM|Gambia
+GN|Guinea
+GP|Guadeloupe
+GQ|Equatorial Guinea
+GR|Greece
+GS|South Georgia & the South Sandwich Islands
+GT|Guatemala
+GU|Guam
+GW|Guinea-Bissau
+GY|Guyana
+HK|Hong Kong
+HN|Honduras
+HR|Croatia
+HT|Haiti
+HU|Hungary
+ID|Indonesia
+IE|Ireland
+IL|Israel
+IM|Isle of Man
+IN|India
+IO|British Indian Ocean Territory
+IQ|Iraq
+IR|Iran
+IS|Iceland
+IT|Italy
+JE|Jersey
+JM|Jamaica
+JO|Jordan
+JP|Japan
+KE|Kenya
+KG|Kyrgyzstan
+KH|Cambodia
+KI|Kiribati
+KM|Comoros
+KN|St Kitts & Nevis
+KP|Korea (North)
+KR|Korea (South)
+KW|Kuwait
+KY|Cayman Islands
+KZ|Kazakhstan
+LA|Laos
+LB|Lebanon
+LC|St Lucia
+LI|Liechtenstein
+LK|Sri Lanka
+LR|Liberia
+LS|Lesotho
+LT|Lithuania
+LU|Luxembourg
+LV|Latvia
+LY|Libya
+MA|Morocco
+MC|Monaco
+MD|Moldova
+ME|Montenegro
+MF|St Martin (French part)
+MG|Madagascar
+MH|Marshall Islands
+MK|Macedonia
+ML|Mali
+MM|Myanmar (Burma)
+MN|Mongolia
+MO|Macau
+MP|Northern Mariana Islands
+MQ|Martinique
+MR|Mauritania
+MS|Montserrat
+MT|Malta
+MU|Mauritius
+MV|Maldives
+MW|Malawi
+MX|Mexico
+MY|Malaysia
+MZ|Mozambique
+NA|Namibia
+NC|New Caledonia
+NE|Niger
+NF|Norfolk Island
+NG|Nigeria
+NI|Nicaragua
+NL|Netherlands
+NO|Norway
+NP|Nepal
+NR|Nauru
+NU|Niue
+NZ|New Zealand
+OM|Oman
+PA|Panama
+PE|Peru
+PF|French Polynesia
+PG|Papua New Guinea
+PH|Philippines
+PK|Pakistan
+PL|Poland
+PM|St Pierre & Miquelon
+PN|Pitcairn
+PR|Puerto Rico
+PS|Palestine
+PT|Portugal
+PW|Palau
+PY|Paraguay
+QA|Qatar
+RE|Reunion
+RO|Romania
+RS|Serbia
+RU|Russia
+RW|Rwanda
+SA|Saudi Arabia
+SB|Solomon Islands
+SC|Seychelles
+SD|Sudan
+SE|Sweden
+SG|Singapore
+SH|St Helena
+SI|Slovenia
+SJ|Svalbard & Jan Mayen
+SK|Slovakia
+SL|Sierra Leone
+SM|San Marino
+SN|Senegal
+SO|Somalia
+SR|Suriname
+SS|South Sudan
+ST|Sao Tome & Principe
+SV|El Salvador
+SX|St Maarten (Dutch part)
+SY|Syria
+SZ|Swaziland
+TC|Turks & Caicos Is
+TD|Chad
+TF|French Southern & Antarctic Lands
+TG|Togo
+TH|Thailand
+TJ|Tajikistan
+TK|Tokelau
+TL|East Timor
+TM|Turkmenistan
+TN|Tunisia
+TO|Tonga
+TR|Turkey
+TT|Trinidad & Tobago
+TV|Tuvalu
+TW|Taiwan
+TZ|Tanzania
+UA|Ukraine
+UG|Uganda
+UM|US minor outlying islands
+US|United States
+UY|Uruguay
+UZ|Uzbekistan
+VA|Vatican City
+VC|St Vincent
+VE|Venezuela
+VG|Virgin Islands (UK)
+VI|Virgin Islands (US)
+VN|Vietnam
+VU|Vanuatu
+WF|Wallis & Futuna
+WS|Samoa (western)
+YE|Yemen
+YT|Mayotte
+ZA|South Africa
+ZM|Zambia
+ZW|Zimbabwe";
         public webCampingWindows()
         {
             String[] sub_array;
@@ -70,14 +317,16 @@ namespace WindowsCampApplication
             InitializeComponent();
 
             // Get time zone code initial
-            var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
-            using (StreamReader reader = new StreamReader(countryCodeFilePath))
-            {
-                var content = reader.ReadToEnd();
-                sub_array = content.Split('\n');
-            }
+            //var countryCodeFilePath = Path.Combine(INITIAL_PATH, "timezoneCode.txt");
+            //using (StreamReader reader = new StreamReader(countryCodeFilePath))
+            //{
+            //    var content = reader.ReadToEnd();
+            //    sub_array = content.Split('\n');
+            //}
+            sub_array = countryCode.Split('\n');
             foreach (string zone in sub_array)
             {
+                Console.WriteLine(zone);
                 CountryInfo sub_tz = new CountryInfo();
                 String[] info = zone.Split('|');
                 sub_tz.CountryCode = info[0];
