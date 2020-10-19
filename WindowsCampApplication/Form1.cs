@@ -293,7 +293,7 @@ namespace WindowsCampApplication
         {
             string result = "";
 
-            var firefoxDriverService = FirefoxDriverService.CreateDefaultService(INITIAL_PATH);
+            var firefoxDriverService = FirefoxDriverService.CreateDefaultService();
             firefoxDriverService.HideCommandPromptWindow = true;
 
             FirefoxProfile profile = new FirefoxProfile();
