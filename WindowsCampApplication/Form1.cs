@@ -122,26 +122,37 @@ namespace WindowsCampApplication
                     // Add order to array
                     foreach (String s in sub_array)
                     {
-                        if (!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
+                        if (!String.IsNullOrEmpty(s) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
                         {
                             OrderInfo sub_order = new OrderInfo();
                             String[] info = s.Split('|');
+                            if(info.Length < 21)
+                            {
+                                Console.WriteLine("This elmement does not have enough attributes");
+                                continue;
+                            }
                             sub_order.OrderLink = info[0];
                             sub_order.Size = info[1];
                             sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
                                 System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
                             sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
-                            sub_order.FirstName = info[4];
-                            sub_order.LastName = info[5];
-                            sub_order.Address = info[6];
-                            sub_order.City = info[7];
-                            sub_order.StateCode = info[8];
-                            sub_order.PostalCode = info[9];
-                            sub_order.Email = @"" + info[10];
-                            sub_order.Phone = info[11];
-                            sub_order.Card = info[12];
-                            sub_order.ExDate = info[13];
+                            sub_order.FirstName = Regex.Replace(info[4], @"\t|\n|\r", "");
+                            sub_order.LastName = Regex.Replace(info[5], @"\t|\n|\r", "");
+                            sub_order.Address = Regex.Replace(info[6], @"\t|\n|\r", "");
+                            sub_order.City = Regex.Replace(info[7], @"\t|\n|\r", "");
+                            sub_order.StateCode = Regex.Replace(info[8], @"\t|\n|\r", "");
+                            sub_order.PostalCode = Regex.Replace(info[9], @"\t|\n|\r", "");
+                            sub_order.Email = @"" + Regex.Replace(info[10], @"\t|\n|\r", ""); ;
+                            sub_order.Phone = Regex.Replace(info[11], @"\t|\n|\r", "");
+                            sub_order.Card = Regex.Replace(info[12], @"\t|\n|\r", "");
+                            sub_order.ExDate = Regex.Replace(info[13], @"\t|\n|\r", "");
                             sub_order.Security = Regex.Replace(info[14], @"\t|\n|\r", "");
+                            sub_order.SecondFistName = Regex.Replace(info[15], @"\t|\n|\r", "");
+                            sub_order.SecondLastName = Regex.Replace(info[16], @"\t|\n|\r", "");
+                            sub_order.SecondAddress = Regex.Replace(info[17], @"\t|\n|\r", "");
+                            sub_order.SecondCity = Regex.Replace(info[18], @"\t|\n|\r", "");
+                            sub_order.SecondStateCode = Regex.Replace(info[19], @"\t|\n|\r", "");
+                            sub_order.SecondPostalCode = Regex.Replace(info[20], @"\t|\n|\r", "");
                             orderList.Add(sub_order);
 
                             //test
@@ -150,17 +161,33 @@ namespace WindowsCampApplication
 
                             foreach (var i in info)
                             {
-                                if(!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
+                                if (!String.IsNullOrEmpty(i) && !i.Equals("\r") && !i.Equals("\n") && !i.Equals("\t") && !i.Equals(""))
                                 {
+                                    Console.WriteLine(i.ToString());
                                     orderInforTextBox.Text += i.ToString() + Environment.NewLine;
                                 }
                                 else
                                 {
-                                    break;
+                                    continue;
                                 }
                             }
-                            orderInforTextBox.Text += Environment.NewLine + Environment.NewLine;
+                            orderInforTextBox.Text += Environment.NewLine;
                         }
+                    }
+
+                    //Check file is empty or not
+                    if(orderList.Count == 0)
+                    {
+                        String message = "List order is empty. Please add file again.";
+                        MessageBoxButtons buttons = MessageBoxButtons.OK;
+                        MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    else
+                    {
+                        String message = $"List order has {orderList.Count()} items.";
+                        MessageBoxButtons buttons = MessageBoxButtons.OK;
+                        MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
                     }
                 }
             }

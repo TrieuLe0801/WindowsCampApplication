@@ -24,5 +24,11 @@ namespace WindowsCampApplication.Model
         public string Card { get; set; }
         public string ExDate { get; set; }
         public string Security { get; set; }
+        public string SecondFistName { get; set; }
+        public string SecondLastName { get; set; }
+        public string SecondAddress { get; set; }
+        public string SecondCity { get; set; }
+        public string SecondStateCode { get; set; }
+        public string SecondPostalCode { get; set; }
     }
 }
