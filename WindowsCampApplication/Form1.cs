@@ -96,6 +96,8 @@ namespace WindowsCampApplication
                 return;
             }
             String[] sub_array;
+            orderList = new List<OrderInfo>();
+            orderInforTextBox.Text = "";
             var filePath = string.Empty;
             var fileContent = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -119,6 +121,10 @@ namespace WindowsCampApplication
                         sub_array = fileContent.Split('\n');
                     }
 
+                    String message = $"App will remove orders which do not have important attributes (link, time, country, size) or lack of attributes.";
+                    MessageBoxButtons buttons = MessageBoxButtons.OK;
+                    MessageBox.Show(message, "Start message", buttons, MessageBoxIcon.Information);
+
                     // Add order to array
                     foreach (String s in sub_array)
                     {
@@ -126,7 +132,11 @@ namespace WindowsCampApplication
                         {
                             OrderInfo sub_order = new OrderInfo();
                             String[] info = s.Split('|');
-                            if(info.Length < 21)
+                            if(info.Length < 21 || 
+                                String.IsNullOrWhiteSpace(info[0]) || 
+                                String.IsNullOrWhiteSpace(info[1]) || 
+                                String.IsNullOrWhiteSpace(info[2]) ||
+                                String.IsNullOrWhiteSpace(info[3]))
                             {
                                 Console.WriteLine("This elmement does not have enough attributes");
                                 continue;
@@ -156,14 +166,13 @@ namespace WindowsCampApplication
                             orderList.Add(sub_order);
 
                             //test
-                            Console.WriteLine(sub_order.OrderLink);
-                            Console.WriteLine(sub_order.ExDate);
+                            //Console.WriteLine(sub_order.OrderLink);
+                            //Console.WriteLine(sub_order.ExDate);
 
                             foreach (var i in info)
                             {
                                 if (!String.IsNullOrEmpty(i) && !i.Equals("\r") && !i.Equals("\n") && !i.Equals("\t") && !i.Equals(""))
                                 {
-                                    Console.WriteLine(i.ToString());
                                     orderInforTextBox.Text += i.ToString() + Environment.NewLine;
                                 }
                                 else
@@ -178,15 +187,15 @@ namespace WindowsCampApplication
                     //Check file is empty or not
                     if(orderList.Count == 0)
                     {
-                        String message = "List order is empty. Please add file again.";
-                        MessageBoxButtons buttons = MessageBoxButtons.OK;
+                        message = "List order is empty. Please add file again.";
+                        buttons = MessageBoxButtons.OK;
                         MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Warning);
                         return;
                     }
                     else
                     {
-                        String message = $"List order has {orderList.Count()} items.";
-                        MessageBoxButtons buttons = MessageBoxButtons.OK;
+                        message = $"List order has {orderList.Count()} items.";
+                        buttons = MessageBoxButtons.OK;
                         MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
                     }
                 }
@@ -385,6 +394,15 @@ namespace WindowsCampApplication
             Thread.Sleep(5000);
 
             // Load item page
+            //if(orderInfo.OrderLink.Equals(null)||orderInfo.OrderLink.Equals(""))
+            //{
+            //    result = "There are no link|FAILED";
+            //    Console.WriteLine(result);
+            //    driver.Quit();
+            //    orderList.Remove(orderInfo);
+            //    return result;
+            //}
+
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine($"Load page {orderInfo.OrderLink}");
             Thread.Sleep(3000);
