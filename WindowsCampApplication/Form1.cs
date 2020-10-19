@@ -120,32 +120,47 @@ namespace WindowsCampApplication
                     // Add order to array
                     foreach (String s in sub_array)
                     {
-                        OrderInfo sub_order = new OrderInfo();
-                        String[] info = s.Split('|');
-                        sub_order.OrderLink = info[0];
-                        sub_order.Size = info[1];
-                        sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
-                            System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
-                        sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
-                        sub_order.FirstName = info[4];
-                        sub_order.LastName = info[5];
-                        sub_order.Address = info[6];
-                        sub_order.City = info[7];
-                        sub_order.StateCode = info[8];
-                        sub_order.PostalCode = info[9];
-                        sub_order.Email = @"" + info[10];
-                        sub_order.Phone = info[11];
-                        sub_order.Card = info[12];
-                        sub_order.ExDate = info[13];
-                        sub_order.Security = Regex.Replace(info[14], @"\t|\n|\r", "");
-                        orderList.Add(sub_order);
+                        if (!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
+                        {
+                            OrderInfo sub_order = new OrderInfo();
+                            String[] info = s.Split('|');
+                            sub_order.OrderLink = info[0];
+                            sub_order.Size = info[1];
+                            sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
+                                System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
+                            sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
+                            sub_order.FirstName = info[4];
+                            sub_order.LastName = info[5];
+                            sub_order.Address = info[6];
+                            sub_order.City = info[7];
+                            sub_order.StateCode = info[8];
+                            sub_order.PostalCode = info[9];
+                            sub_order.Email = @"" + info[10];
+                            sub_order.Phone = info[11];
+                            sub_order.Card = info[12];
+                            sub_order.ExDate = info[13];
+                            sub_order.Security = Regex.Replace(info[14], @"\t|\n|\r", "");
+                            orderList.Add(sub_order);
 
-                        //test
-                        Console.WriteLine(sub_order.OrderLink);
-                        Console.WriteLine(sub_order.ExDate);
+                            //test
+                            Console.WriteLine(sub_order.OrderLink);
+                            Console.WriteLine(sub_order.ExDate);
+
+                            foreach (var i in info)
+                            {
+                                if(!s.Equals(null) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
+                                {
+                                    orderInforTextBox.Text += i.ToString() + Environment.NewLine;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            orderInforTextBox.Text += Environment.NewLine + Environment.NewLine;
+                        }
                     }
                 }
-                orderInforTextBox.Text = fileContent + Environment.NewLine;
             }
         }
 
@@ -219,10 +234,19 @@ namespace WindowsCampApplication
                         break;
                     }
                 }
-                message = $"Finsh Process. There are {orderList.Count} orders available.";
+                if (orderList.Count == 0)
+                {
+                    message = $"Finsh Process. There are {orderList.Count} orders available. Clear all orders information.";
+                    orderInforTextBox.Text = "";
+                }
+                else
+                {
+                    message = $"Finsh Process. There are {orderList.Count} orders available.";
+                }
                 MessageBoxButtons finbuttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Finish message", finbuttons, MessageBoxIcon.Information);
                 PROCESSING = 0;
+               
             }
         }
 
@@ -272,12 +296,12 @@ namespace WindowsCampApplication
 
             // set driver
             IWebDriver driver = new FirefoxDriver(firefoxDriverService, options);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
-            Thread.Sleep(15000);
+            Thread.Sleep(8000);
 
             try
             {
@@ -292,9 +316,19 @@ namespace WindowsCampApplication
             }
 
             // get location
-            driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
-            Thread.Sleep(2000);
-
+            // Handle pin element
+            try
+            {
+                driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
+                Thread.Sleep(2000);
+            }catch(ElementClickInterceptedException e)
+            {
+                result = $"cannot click pin this link {orderInfo.OrderLink}|FAILED";
+                Console.WriteLine(result);
+                driver.Quit();
+                return result;
+            }
+            
             IWebElement alertLocation = null;
             try
             {
@@ -319,12 +353,12 @@ namespace WindowsCampApplication
 
             driver.Navigate().GoToUrl("https://www.nike.com/launch/");
             Console.WriteLine("Loaded NIKE Launch page");
-            Thread.Sleep(10000);
+            Thread.Sleep(5000);
 
             // Load item page
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine($"Load page {orderInfo.OrderLink}");
-            Thread.Sleep(10000);
+            Thread.Sleep(3000);
 
             // Check sold out
             bool soldOut = false;
@@ -333,20 +367,20 @@ namespace WindowsCampApplication
                 soldOut = driver.FindElement(By.XPath(
                     "//div[@class='ncss-btn-primary-dark btn-lg disabled d-sm-b d-lg-ib buyable-full-width' " +
                     "and contains(text(),'Sold Out')]")).Displayed;
-                Thread.Sleep(2000);
+                //Thread.Sleep(2000);
+                if (soldOut)
+                {
+                    // add result
+                    result = $"Product at link {orderInfo.OrderLink} was SOLD OUT|FAILED";
+                    Console.WriteLine(result);
+                    driver.Quit();
+                    orderList.Remove(orderInfo);
+                    return result;
+                }
             }
-            catch (Exception e)
+            catch (NoSuchElementException e)
             {
                 Console.WriteLine(e);
-            }
-            if (soldOut)
-            {
-                // add result
-                result = $"Product at link {orderInfo.OrderLink} was SOLD OUT|FAILED";
-                Console.WriteLine(result);
-                driver.Quit();
-                orderList.Remove(orderInfo);
-                return result;
             }
 
             // Check size available
@@ -354,8 +388,8 @@ namespace WindowsCampApplication
             try
             {
                 sizeAvailable = driver.FindElement(
-                    By.XPath($"//button[contains(text(),'{orderInfo.Size}')]")).Displayed;
-                Thread.Sleep(2000);
+                    By.XPath($"//button[text()='{orderInfo.Size}']")).Displayed;
+                //Thread.Sleep(2000);
             }
             catch (Exception e)
             {
@@ -384,23 +418,33 @@ namespace WindowsCampApplication
                 else
                 {
                     // Click button size
-                    IWebElement sizebtn= driver.FindElement(
-                    By.XPath($"//button[text() = '{orderInfo.Size}']"));
-                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
-                    Actions action = new Actions(driver);
-                    action.MoveToElement(sizebtn).Click().Perform();
-                    Console.WriteLine("Choose button size " + driver.FindElement(
-                    By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
-                    Thread.Sleep(2000);
+                    try
+                    {
+                        IWebElement sizebtn = driver.FindElement(By.XPath($"//button[text() = '{orderInfo.Size}']"));
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
+                        Actions action = new Actions(driver);
+                        action.MoveToElement(sizebtn).Click().Perform();
+                        Console.WriteLine("Choose button size " + driver.FindElement(
+                        By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
+                        Thread.Sleep(2000);
 
-                    // Click add to cart
-                    IWebElement addCartBtn = driver.FindElement(By.XPath("//div[@class='mt2-sm mb6-sm prl0-lg fs14-sm']"));
-                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
-                    action = new Actions(driver);
-                    action.MoveToElement(addCartBtn).Click().Perform();
-                    Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
-                    Thread.Sleep(2000);
-
+                        // Click add to cart
+                        IWebElement addCartBtn = driver.FindElement(By.XPath("//div[@class='mt2-sm mb6-sm prl0-lg fs14-sm']"));
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
+                        action = new Actions(driver);
+                        action.MoveToElement(addCartBtn).Click().Perform();
+                        Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
+                        Thread.Sleep(2000);
+                    }
+                    catch(NoSuchElementException e)
+                    {
+                        result = $"Cannot choose size or add to cart {orderInfo.OrderLink}|FAILED";
+                        Console.WriteLine(result);
+                        driver.Quit();
+                        return result;
+                    }
+                    
+                    // Handle item load into cart
                     try
                     {
                         Thread.Sleep(2000);
@@ -411,12 +455,12 @@ namespace WindowsCampApplication
                     }
                     catch (Exception e)
                     {
-                        result = $"Cannot add to cart {orderInfo.OrderLink}";
+                        result = $"Cannot add item to cart {orderInfo.OrderLink}|FAILED";
                         Console.WriteLine(result);
                         driver.Quit();
                         return result;
                     }
-                    
+
                     // Click to check the cart
                     driver.FindElement(
                         By.XPath("//a[" +
@@ -447,8 +491,16 @@ namespace WindowsCampApplication
                     Thread.Sleep(2000);
 
                     //Insert First name and last name
-                    result = AutoFill(driver, orderInfo);
-
+                    try
+                    {
+                        result = AutoFill(driver, orderInfo);
+                    }catch(Exception e)
+                    {
+                        result = $"Cannot billing order {orderInfo.OrderLink}|FAILED";
+                        driver.Quit();
+                        return result;
+                    }
+                    
                     //result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
                     Console.WriteLine(result);
                     driver.Quit();
@@ -479,7 +531,12 @@ namespace WindowsCampApplication
                            int compare_datetime = DateTime.Compare(present, order.Time);
                            if (compare_datetime >= 0) // change to datetime to select order to pickup and order
                            {
-
+                               result = $"loading {order.OrderLink}...";
+                               resultTextBox.Invoke(new MethodInvoker(delegate
+                               {
+                                   resultTextBox.Text += result + Environment.NewLine;
+                               }
+                              ));
                                result = LoadDriver(order);
                                //remove_order.Add(order.OrderLink);
                                Console.WriteLine("Link: {0}, at Thread = {1}",
@@ -492,7 +549,6 @@ namespace WindowsCampApplication
                                }
                               ));
                                Thread.Sleep(10000);
-
                            }
                            else
                            {
