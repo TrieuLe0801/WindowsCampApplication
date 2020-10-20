@@ -932,6 +932,7 @@ ZW|Zimbabwe";
                     try
                     {
                         result = AutoFill(driver, orderInfo);
+                        Thread.Sleep(5000);
                     }catch(Exception e)
                     {
                         result = $"Cannot billing order {orderInfo.OrderLink}|FAILED";
