@@ -34,6 +34,7 @@ https://www.nike.com/launch/t/air-max-3-eggplant|W 10.5 / M 9|2020-10-12 11:50 P
 
 https://www.nike.com/launch/t/air-max-3-eggplant|W 10.5 / M 9|2020-10-12 11:50 PM|United States|Debra|Witkop|8440 Zephyr Ct|Arvada|CO|80005|seankerhead12@gmail.com|(303) 829-4107|5148880003424949|09/20|119||||||
 ```
+* Note
   + Second_First_user_name|Second_Last_user_name|Second_Address|Second_City|Second_State_code|Second_Postal_code if you want to billing another address.
   + ||||| keep this space if you billing at the same address.
 - Camping: Start processing and wait to order
