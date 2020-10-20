@@ -938,6 +938,14 @@ ZW|Zimbabwe";
                         driver.Quit();
                         return result;
                     }
+
+                    // check result after billing
+                    if (String.IsNullOrWhiteSpace(result))
+                    {
+                        result = $"Cannot billing order {orderInfo.OrderLink}|FAILED";
+                        driver.Quit();
+                        return result;
+                    }
                     
                     //result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
                     Console.WriteLine(result);
@@ -1256,15 +1264,17 @@ ZW|Zimbabwe";
                 "ncss-btn-accent pb2-lg pb3-sm prl5-sm " +
                 "pt2-lg pt3-sm u-uppercase' and text() = 'Place Order']"));
                 ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", placeOrder);
+                Thread.Sleep(2000);
                 if (placeOrder.Enabled)
                 {
                     placeOrder.Click();
                     result = $"Order successfull {order.OrderLink}|SUCCESS";
                 }
-                else
-                {
-                    result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
-                }
+                //else
+                //{
+                //    //result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
+
+                //}
                 return result;
             }
             catch(Exception e)
@@ -1273,15 +1283,16 @@ ZW|Zimbabwe";
             }
             var placeOrder1 = driver.FindElement(By.XPath("//button[text()='Continue To Order Review']"));
             ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", placeOrder1);
+            Thread.Sleep(2000);
             if (placeOrder1.Enabled)
             {
                 placeOrder1.Click();
                 result = $"Order successfull {order.OrderLink}|SUCCESS";
             }
-            else
-            {
-                result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
-            }
+            //else
+            //{
+            //    //result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
+            //}
             return result;
         }
 
