@@ -13,7 +13,7 @@ Application helps camp and order automatically (Nike.com)
 - TimeZoneConverter.3.3.0
 - TimeZoneConverter.Posix.2.2.0
 ## Install
-- Download Setup.rar in AppSetup folder.
+- Download Setup.rar in Setup folder.
 - Extract Setup.rar.
 - Choose setup.exe in Debug folder to install and setup to use.
 - Copy file geckodriver.exe and paste to folder contain application in system. 
