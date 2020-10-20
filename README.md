@@ -17,7 +17,7 @@ Application helps camp and order automatically (Nike.com)
 - Extract Setup.rar.
 - Choose setup.exe in Debug folder to install and setup to use.
 - Copy file geckodriver.exe and paste to folder contain application in system. 
-EX: C:\Program Files (x86)\Sneaker Head\Nike Camping\ (you can find it when you run setup.exe)
+EX: C:\Program Files (x86)\Sneaker Head\Setup\ (you can find it when you run setup.exe)
 - Ready to use.
 ## Download Driver:
 - [firefox dirver](https://github.com/mozilla/geckodriver/releases) you should choose lastest version
