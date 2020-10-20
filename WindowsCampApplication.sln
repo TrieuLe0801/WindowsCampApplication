@@ -5,21 +5,24 @@ VisualStudioVersion = 15.0.28307.1062
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsCampApplication", "WindowsCampApplication\WindowsCampApplication.csproj", "{42E68F57-D3B9-4C99-BC7A-0ED0B375687A}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AppSetup", "AppSetup\AppSetup.vdproj", "{E9E2876C-6ADB-4127-A720-DF242DD451FB}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{55065250-2B02-405C-8B88-FC45B12225D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		All|Any CPU = All|Any CPU
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{42E68F57-D3B9-4C99-BC7A-0ED0B375687A}.All|Any CPU.ActiveCfg = Release|Any CPU
+		{42E68F57-D3B9-4C99-BC7A-0ED0B375687A}.All|Any CPU.Build.0 = Release|Any CPU
 		{42E68F57-D3B9-4C99-BC7A-0ED0B375687A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{42E68F57-D3B9-4C99-BC7A-0ED0B375687A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42E68F57-D3B9-4C99-BC7A-0ED0B375687A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42E68F57-D3B9-4C99-BC7A-0ED0B375687A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E9E2876C-6ADB-4127-A720-DF242DD451FB}.Debug|Any CPU.ActiveCfg = Debug
-		{E9E2876C-6ADB-4127-A720-DF242DD451FB}.Release|Any CPU.ActiveCfg = Release
-		{E9E2876C-6ADB-4127-A720-DF242DD451FB}.Release|Any CPU.Build.0 = Release
+		{55065250-2B02-405C-8B88-FC45B12225D3}.All|Any CPU.ActiveCfg = Release
+		{55065250-2B02-405C-8B88-FC45B12225D3}.Debug|Any CPU.ActiveCfg = Debug
+		{55065250-2B02-405C-8B88-FC45B12225D3}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
