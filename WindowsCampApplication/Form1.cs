@@ -649,7 +649,7 @@ ZW|Zimbabwe";
                 MessageBoxButtons buttons = MessageBoxButtons.OK;
                 MessageBox.Show(message, "Start message", buttons, MessageBoxIcon.Information);
 
-                List<string> ordered;
+                //List<string> ordered;
                 // Wait loop
                 while (orderList.Count > 0)
                 {
