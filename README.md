@@ -13,13 +13,13 @@ Application helps camp and order automatically (Nike.com)
 - TimeZoneConverter.3.3.0
 - TimeZoneConverter.Posix.2.2.0
 ## Install
--Download AppSetup.rar in AppSetup folder.
--Extract AppSetup.rar.
--Choose setup.exe in Debug folder to install and setup to use.
--Extract geckodriver-v0.27.0-win32.zip(x86) or geckodriver-v0.27.0-win64.zip(x64)
--Copy file geckodriver.exe and paste to folder contain application in system. 
+- Download AppSetup.rar in AppSetup folder.
+- Extract AppSetup.rar.
+- Choose setup.exe in Debug folder to install and setup to use.
+- Extract geckodriver-v0.27.0-win32.zip(x86) or geckodriver-v0.27.0-win64.zip(x64)
+- Copy file geckodriver.exe and paste to folder contain application in system. 
 EX: C:\Program Files (x86)\Sneaker Head\Nike Camping\ (you can find it when you run setup.exe)
--Ready to use.
+- Ready to use.
 ## Image
 ![alt-text](https://github.com/TrieuLe0801/WindowsCampApplication/blob/master/1.JPG)
 ## Buttons
