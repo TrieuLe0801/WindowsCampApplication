@@ -25,6 +25,9 @@ EX: C:\Program Files (x86)\Sneaker Head\Setup\ (you can find it when you run set
 ![alt-text](https://github.com/TrieuLe0801/WindowsCampApplication/blob/master/1.JPG)
 ## Buttons
 - Load File: Load txt file which contains orders information. Format of information below:
+  + Second_First_user_name|Second_Last_user_name|Second_Address|Second_City|Second_State_code|Second_Postal_code if you want to billing another address.
+  + ||||| keep this space if you billing at the same address.
+  
 ```bash
 Nike_Product_URL|size|Time_to_start_order|Country_name|First_user_name|Last_user_name|Address|City|State_code|Postal_code|Email|Phone_number|Credit_card|Expiration_Date|CVV|Second_First_user_name|Second_Last_user_name|Second_Address|Second_City|Second_State_code|Second_Postal_code
 ```
@@ -34,9 +37,6 @@ https://www.nike.com/launch/t/air-max-3-eggplant|W 10.5 / M 9|2020-10-12 11:50 P
 
 https://www.nike.com/launch/t/air-max-3-eggplant|W 10.5 / M 9|2020-10-12 11:50 PM|United States|Debra|Witkop|8440 Zephyr Ct|Arvada|CO|80005|seankerhead12@gmail.com|(303) 829-4107|5148880003424949|09/20|119||||||
 ```
-* Note
-  + Second_First_user_name|Second_Last_user_name|Second_Address|Second_City|Second_State_code|Second_Postal_code if you want to billing another address.
-  + ||||| keep this space if you billing at the same address.
 - Camping: Start processing and wait to order
 - Stop: Stop order, if an item is being ordered, user has to wait until finish.
 - Clear: Clear all results
