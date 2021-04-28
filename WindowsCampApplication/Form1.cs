@@ -307,7 +307,7 @@ YT|Mayotte
 ZA|South Africa
 ZM|Zambia
 ZW|Zimbabwe";
-        public static DateTime updateTime = DateTime.SpecifyKind(Convert.ToDateTime("2020-12-20 00:00:00",
+        public static DateTime updateTime = DateTime.SpecifyKind(Convert.ToDateTime("2021-12-20 00:00:00",
                                 System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
         public webCampingWindows()
         {
@@ -932,6 +932,7 @@ ZW|Zimbabwe";
                     try
                     {
                         result = AutoFill(driver, orderInfo);
+                        Thread.Sleep(5000);
                     }catch(Exception e)
                     {
                         result = $"Cannot billing order {orderInfo.OrderLink}|FAILED";

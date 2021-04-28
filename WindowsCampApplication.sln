@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsCampApplication", "W
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{55065250-2B02-405C-8B88-FC45B12225D3}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup1", "Setup1\Setup1.vdproj", "{180A9423-B6C9-4EAF-B9CF-4728091FE7AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		All|Any CPU = All|Any CPU
@@ -23,6 +25,9 @@ Global
 		{55065250-2B02-405C-8B88-FC45B12225D3}.All|Any CPU.ActiveCfg = Release
 		{55065250-2B02-405C-8B88-FC45B12225D3}.Debug|Any CPU.ActiveCfg = Debug
 		{55065250-2B02-405C-8B88-FC45B12225D3}.Release|Any CPU.ActiveCfg = Release
+		{180A9423-B6C9-4EAF-B9CF-4728091FE7AF}.All|Any CPU.ActiveCfg = Release
+		{180A9423-B6C9-4EAF-B9CF-4728091FE7AF}.Debug|Any CPU.ActiveCfg = Debug
+		{180A9423-B6C9-4EAF-B9CF-4728091FE7AF}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
