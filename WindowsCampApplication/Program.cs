@@ -16,7 +16,7 @@ namespace WindowsCampApplication
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new webCampingWindows());
+            Application.Run(new loginForm());
         }
     }
 }
