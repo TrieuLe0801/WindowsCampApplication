@@ -730,7 +730,7 @@ ZW|Zimbabwe";
 
             driver.Navigate().GoToUrl("https://www.nike.com/");
             Console.WriteLine("Loaded NIKE page");
-            Thread.Sleep(8000);
+            Thread.Sleep(5000);
 
             try
             {
@@ -749,7 +749,7 @@ ZW|Zimbabwe";
             try
             {
                 driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
             }catch(ElementClickInterceptedException e)
             {
                 result = $"cannot click pin this link {orderInfo.OrderLink}|FAILED";
@@ -772,17 +772,17 @@ ZW|Zimbabwe";
             if (alertLocation.Displayed)
             {
                 alertLocation.Click();
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
             }
             else
             {
                 driver.FindElement(By.XPath("//p[@class='nav-bold' and contains(text(),'United States')]")).Click();
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
             }
 
             driver.Navigate().GoToUrl("https://www.nike.com/launch/");
             Console.WriteLine("Loaded NIKE Launch page");
-            Thread.Sleep(5000);
+            Thread.Sleep(2000);
 
             // Load item page
             //if(orderInfo.OrderLink.Equals(null)||orderInfo.OrderLink.Equals(""))
@@ -796,7 +796,7 @@ ZW|Zimbabwe";
 
             driver.Navigate().GoToUrl(orderInfo.OrderLink);
             Console.WriteLine($"Load page {orderInfo.OrderLink}");
-            Thread.Sleep(3000);
+            Thread.Sleep(1000);
 
             // Check sold out
             bool soldOut = false;
@@ -822,12 +822,12 @@ ZW|Zimbabwe";
             }
 
             // Check size available
-            bool sizeAvailable = false;
+            bool sizeAvailable = true;
             try
             {
                 sizeAvailable = driver.FindElement(
-                    By.XPath($"//button[text()='{orderInfo.Size}']")).Displayed;
-                //Thread.Sleep(2000);
+                    By.XPath($"//input[text()='{orderInfo.Size}']")).Displayed;
+                //Thread.Sleep(2000);//*[@id="skuAndSize__26120588"]
             }
             catch (Exception e)
             {
@@ -846,7 +846,7 @@ ZW|Zimbabwe";
             else
             {
                 if (!driver.FindElement(
-                   By.XPath($"//button[text()='{orderInfo.Size}']")).Enabled)
+                   By.XPath($"//label[@class='css-xf3ahq' and text()='{orderInfo.Size}']")).Enabled)
                 {
                     //add result
                     result = $"This size is run out off at link {orderInfo.OrderLink}|FAILED";
@@ -858,76 +858,89 @@ ZW|Zimbabwe";
                     // Click button size
                     try
                     {
-                        IWebElement sizebtn = driver.FindElement(By.XPath($"//button[text() = '{orderInfo.Size}']"));
-                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
-                        Actions action = new Actions(driver);
-                        action.MoveToElement(sizebtn).Click().Perform();
-                        Console.WriteLine("Choose button size " + driver.FindElement(
-                        By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
                         Thread.Sleep(2000);
+                        //IWebElement sizebtn = driver.FindElement(By.XPath($"//label[@class='css-xf3ahq' and text()='{orderInfo.Size}']"));
+                        //((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
+                        Actions action = new Actions(driver);
+                        //action.MoveToElement(sizebtn).Click().Perform();
+                        //Console.WriteLine("Choose button size " + driver.FindElement(
+                        //By.XPath($"//label[@class='css-xf3ahq' and text()='{orderInfo.Size}']")).Text);
+                        MessageBox.Show("SIZE OK");
+                        Thread.Sleep(2000);
+                        MessageBox.Show("CONT TO ADD TO CART");
+
 
                         // Click add to cart
-                        IWebElement addCartBtn = driver.FindElement(By.XPath("//div[@class='mt2-sm mb6-sm prl0-lg fs14-sm']"));
+                        IWebElement addCartBtn = driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg add-to-cart-btn']"));
                         ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
                         action = new Actions(driver);
                         action.MoveToElement(addCartBtn).Click().Perform();
-                        Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
+                        Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg add-to-cart-btn']")).Text);
                         Thread.Sleep(2000);
                     }
                     catch(NoSuchElementException e)
                     {
-                        result = $"Cannot choose size or add to cart {orderInfo.OrderLink}|FAILED";
+                        result = $"{orderInfo.OrderLink}|SUCCESS";
                         Console.WriteLine(result);
-                        driver.Quit();
-                        return result;
+                        //driver.Quit();
+                        //return result;
                     }
                     
                     // Handle item load into cart
                     try
                     {
-                        Thread.Sleep(2000);
+                        Thread.Sleep(10000);
                         wait.Until(SeleniumExtras.WaitHelpers.
-                            ExpectedConditions.ElementIsVisible(By.XPath("//div[@class='cart-item-modal-content-container " +
-                            "ncss-container p6-sm bg-white']")));
+                            ExpectedConditions.ElementIsVisible(By.XPath("//div[@class='ncss-row pt5-sm pb6-sm']")));
                         Console.WriteLine("Add already");
                     }
                     catch (Exception e)
                     {
-                        result = $"Cannot add item to cart {orderInfo.OrderLink}|FAILED";
+                        //result = $"Cannot add item to cart {orderInfo.OrderLink}|FAILED";
+                        //Console.WriteLine(result);
+                        //driver.Quit();
+                        //return result;
+                        result = $"{orderInfo.OrderLink}|SUCCESS";
                         Console.WriteLine(result);
-                        driver.Quit();
-                        return result;
                     }
 
-                    // Click to check the cart
-                    driver.FindElement(
-                        By.XPath("//a[" +
-                        "@class='hover-color-black text-color-grey bg-transparent " +
-                        "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
-                    Console.WriteLine("Load the cart");
-                    Thread.Sleep(2000);
-
-                    // Click to checkout
                     try
                     {
-                        driver.FindElement(
-                           By.XPath("//button[@data-automation='guest-checkout-button']")).Click();
+                        // Click to check the cart
+                       // driver.FindElement(
+                        //    By.XPath("//button[" +
+                        //    "@class='ncss-btn-primary-dark btn-lg mr3-sm css-1n4ymyz']")).Click();
+                        Console.WriteLine("Load the cart");
+                        MessageBox.Show("Click To Check Out");
                         Thread.Sleep(2000);
                     }
                     catch (Exception e)
                     {
-                        result = $"Failed order {orderInfo.OrderLink}|FAILED";
-                        Console.WriteLine(result);
-                        driver.Quit();
-                        return result;
+
                     }
+                    
+                    //-//
+                    // click to checkout
+                    ////try
+                    ////{
+                    ////    driver.findelement(
+                    ////       by.xpath("//button[@data-automation='guest-checkout-button']")).click();
+                    ////    thread.sleep(2000);
+                    ////}
+                    ////catch (exception e)
+                    ////{
+                    ////    result = $"failed order {orderinfo.orderlink}|failed";
+                    ////    console.writeline(result);
+                    ////    //driver.quit();
+                    ////    return result;
+                    ////}
 
-                    // load list button to find checkout button
-                    var checkoutBtn = driver.FindElement(By.XPath("//div[@class='d-sm-h d-lg-tr']"));
-                    checkoutBtn.FindElement(By.XPath("//button[text()='Guest Checkout']")).Click();
-                    Console.WriteLine("Clicked Checkout");
-                    Thread.Sleep(2000);
-
+                    ////// load list button to find checkout button
+                    ////var checkoutbtn = driver.findelement(by.xpath("//div[@class='d-sm-h d-lg-tr']"));
+                    ////checkoutbtn.findelement(by.xpath("//button[text()='guest checkout']")).click();
+                    ////console.writeline("clicked checkout");
+                    ////thread.sleep(2000);
+                     //
                     //Insert First name and last name
                     try
                     {
@@ -1336,6 +1349,11 @@ ZW|Zimbabwe";
         void t_Tick(object sender, EventArgs e)
         {
             timerLb.Text = DateTime.Now.ToString("HH:mm:ss");
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
