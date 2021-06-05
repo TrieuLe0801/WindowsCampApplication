@@ -42,7 +42,6 @@
             this.stopBtn = new System.Windows.Forms.Button();
             this.clear_btn = new System.Windows.Forms.Button();
             this.timerLb = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // orderInforTextBox
@@ -205,19 +204,6 @@
             this.timerLb.Text = "00:00:00";
             this.timerLb.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.DimGray;
-            this.button1.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.button1.Location = new System.Drawing.Point(433, 559);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(196, 48);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "Log Out";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // webCampingWindows
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -225,7 +211,6 @@
             this.BackColor = System.Drawing.SystemColors.ControlLight;
             this.BackgroundImage = global::WindowsCampApplication.Properties.Resources._78a45eb3fc20ad8c5116930a112ffdb1;
             this.ClientSize = new System.Drawing.Size(1061, 702);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.timerLb);
             this.Controls.Add(this.clear_btn);
             this.Controls.Add(this.stopBtn);
@@ -263,7 +248,6 @@
         private System.Windows.Forms.Button stopBtn;
         private System.Windows.Forms.Button clear_btn;
         private System.Windows.Forms.Label timerLb;
-        private System.Windows.Forms.Button button1;
     }
 }
 

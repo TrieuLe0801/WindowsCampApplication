@@ -32,7 +32,7 @@ namespace WindowsCampApplication
             }
             else
             {
-                if (usernameTxtBox.Text.Equals("admin") && passwordTxtBox.Text.Equals("admin") || usernameTxtBox.Text.Equals("admin") && passwordTxtBox.Text.Equals("admin123"))
+                if (usernameTxtBox.Text.Equals("admin") && passwordTxtBox.Text.Equals("admin"))
                 {
                     this.Hide();
                     webCampingWindows ss = new webCampingWindows();
