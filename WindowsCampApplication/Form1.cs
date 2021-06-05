@@ -826,7 +826,7 @@ ZW|Zimbabwe";
             try
             {
                 sizeAvailable = driver.FindElement(
-                    By.XPath($"//button[text()='{orderInfo.Size}']")).Displayed;
+                    By.XPath($"//label[@class = 'css-xf3ahq' and text() = '{orderInfo.Size}']")).Displayed;
                 //Thread.Sleep(2000);
             }
             catch (Exception e)
@@ -846,32 +846,32 @@ ZW|Zimbabwe";
             else
             {
                 if (!driver.FindElement(
-                   By.XPath($"//button[text()='{orderInfo.Size}']")).Enabled)
+                   By.XPath($"//label[@class = 'css-xf3ahq' and text() = '{orderInfo.Size}']")).Enabled)
                 {
                     //add result
                     result = $"This size is run out off at link {orderInfo.OrderLink}|FAILED";
                     Console.WriteLine(result);
-                    driver.Quit();
+                    //driver.Quit();
                 }
                 else
                 {
                     // Click button size
                     try
                     {
-                        IWebElement sizebtn = driver.FindElement(By.XPath($"//button[text() = '{orderInfo.Size}']"));
+                        IWebElement sizebtn = driver.FindElement(By.XPath($"//label[@class = 'css-xf3ahq' and text() = '{orderInfo.Size}']"));
                         ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
                         Actions action = new Actions(driver);
                         action.MoveToElement(sizebtn).Click().Perform();
                         Console.WriteLine("Choose button size " + driver.FindElement(
-                        By.XPath($"//button[text() = '{orderInfo.Size}']")).Text);
+                        By.XPath($"//label[@class = 'css-xf3ahq' and text() = '{orderInfo.Size}']")).Text);
                         Thread.Sleep(2000);
 
                         // Click add to cart
-                        IWebElement addCartBtn = driver.FindElement(By.XPath("//div[@class='mt2-sm mb6-sm prl0-lg fs14-sm']"));
+                        IWebElement addCartBtn = driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg add-to-cart-btn']"));
                         ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
                         action = new Actions(driver);
                         action.MoveToElement(addCartBtn).Click().Perform();
-                        Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@data-qa='add-to-cart']")).Text);
+                        Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg add-to-cart-btn']")).Text);
                         Thread.Sleep(2000);
                     }
                     catch(NoSuchElementException e)
