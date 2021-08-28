@@ -47,7 +47,7 @@ namespace WindowsCampApplication
 //			"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36"
 			};
 
-        public static List<OrderInfo> orderList = new List<OrderInfo>();
+        public static List<Account> orderList = new List<Account>();
         public static int HEADLESS = 0;
         public static int PROCESSING = 0;
         public static int TAB = 0;
@@ -477,14 +477,14 @@ ZW|Zimbabwe";
                 return;
             }
             String[] sub_array;
-            orderList = new List<OrderInfo>();
+            orderList = new List<Account>();
             orderInforTextBox.Text = "";
             var filePath = string.Empty;
             var fileContent = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.InitialDirectory = "c:\\";
-                openFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                openFileDialog.InitialDirectory = "d:\\";
+                openFileDialog.Filter = "csv files (*.csv)|*.csv|All files (*.*)|*.*";
                 openFileDialog.FilterIndex = 2;
                 openFileDialog.RestoreDirectory = true;
 
@@ -494,56 +494,33 @@ ZW|Zimbabwe";
                     filePath = openFileDialog.FileName;
 
                     //Read the contents of the file into a stream
-                    var fileStream = openFileDialog.OpenFile();
+                    string[] lines = System.IO.File.ReadAllLines(filePath);
+                    sub_array = lines;
+                    Console.WriteLine(sub_array.Length);
 
-                    using (StreamReader reader = new StreamReader(fileStream))
-                    {
-                        fileContent = reader.ReadToEnd();
-                        sub_array = fileContent.Split('\n');
-                    }
-
-                    //String message = $"App will remove orders which do not have important attributes (link, time, country, size) or lack of attributes.";
-                    //MessageBoxButtons buttons = MessageBoxButtons.OK;
-                    //MessageBox.Show(message, "Start message", buttons, MessageBoxIcon.Information);
-
-                    // Add order to array
                     foreach (String s in sub_array)
                     {
                         if (!String.IsNullOrEmpty(s) && !s.Equals("\r") && !s.Equals("\n") && !s.Equals("\t") && !s.Equals(""))
                         {
-                            OrderInfo sub_order = new OrderInfo();
-                            String[] info = s.Split('|');
-                            if(info.Length < 21 || 
-                                String.IsNullOrWhiteSpace(info[0]) || 
-                                String.IsNullOrWhiteSpace(info[1]) || 
+                            Account sub_order = new Account();
+                            String[] info = s.Split(',');
+                            if (info.Length < 6 ||
+                                String.IsNullOrWhiteSpace(info[0]) ||
+                                String.IsNullOrWhiteSpace(info[1]) ||
                                 String.IsNullOrWhiteSpace(info[2]) ||
-                                String.IsNullOrWhiteSpace(info[3]))
+                                String.IsNullOrWhiteSpace(info[3]) ||
+                                String.IsNullOrWhiteSpace(info[4]) ||
+                                String.IsNullOrWhiteSpace(info[5]))
                             {
                                 Console.WriteLine("This elmement does not have enough attributes");
                                 continue;
                             }
-                            sub_order.OrderLink = info[0];
-                            sub_order.Size = info[1];
-                            sub_order.Time = DateTime.SpecifyKind(Convert.ToDateTime(info[2],
-                                System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat), DateTimeKind.Utc);
-                            sub_order.Country = Regex.Replace(info[3], @"\t|\n|\r", "");
-                            sub_order.FirstName = Regex.Replace(info[4], @"\t|\n|\r", "");
-                            sub_order.LastName = Regex.Replace(info[5], @"\t|\n|\r", "");
-                            sub_order.Address = Regex.Replace(info[6], @"\t|\n|\r", "");
-                            sub_order.City = Regex.Replace(info[7], @"\t|\n|\r", "");
-                            sub_order.StateCode = Regex.Replace(info[8], @"\t|\n|\r", "");
-                            sub_order.PostalCode = Regex.Replace(info[9], @"\t|\n|\r", "");
-                            sub_order.Email = @"" + Regex.Replace(info[10], @"\t|\n|\r", ""); ;
-                            sub_order.Phone = Regex.Replace(info[11], @"\t|\n|\r", "");
-                            sub_order.Card = Regex.Replace(info[12], @"\t|\n|\r", "");
-                            sub_order.ExDate = Regex.Replace(info[13], @"\t|\n|\r", "");
-                            sub_order.Security = Regex.Replace(info[14], @"\t|\n|\r", "");
-                            sub_order.SecondFistName = Regex.Replace(info[15], @"\t|\n|\r", "");
-                            sub_order.SecondLastName = Regex.Replace(info[16], @"\t|\n|\r", "");
-                            sub_order.SecondAddress = Regex.Replace(info[17], @"\t|\n|\r", "");
-                            sub_order.SecondCity = Regex.Replace(info[18], @"\t|\n|\r", "");
-                            sub_order.SecondStateCode = Regex.Replace(info[19], @"\t|\n|\r", "");
-                            sub_order.SecondPostalCode = Regex.Replace(info[20], @"\t|\n|\r", "");
+                            sub_order.Fname = Regex.Replace(info[0], @"\t|\n|\r", "");
+                            sub_order.Lname = Regex.Replace(info[1], @"\t|\n|\r", "");
+                            sub_order.Email = @""+ Regex.Replace(info[2], @"\t|\n|\r", "");
+                            sub_order.Password = @"" + Regex.Replace(info[3], @"\t|\n|\r", "");
+                            sub_order.Proxy = @""+ Regex.Replace(info[4], @"\t|\n|\r", "");
+                            sub_order.Port = @""+ Regex.Replace(info[5], @"\t|\n|\r", "");
                             orderList.Add(sub_order);
 
                             //test
@@ -680,11 +657,11 @@ ZW|Zimbabwe";
         }
 
         // Load and get order
-        public string LoadDriver(OrderInfo orderInfo)
+        public string LoadDriver(Account orderInfo)
         {
             string result = "";
 
-            var firefoxDriverService = FirefoxDriverService.CreateDefaultService();
+            var firefoxDriverService = FirefoxDriverService.CreateDefaultService(".","geckodriver.exe");
             firefoxDriverService.HideCommandPromptWindow = true;
 
             FirefoxProfile profile = new FirefoxProfile();
@@ -728,232 +705,10 @@ ZW|Zimbabwe";
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
 
-            driver.Navigate().GoToUrl("https://www.nike.com/");
-            Console.WriteLine("Loaded NIKE page");
-            Thread.Sleep(8000);
-
-            try
-            {
-                IWebElement closePanel = driver.FindElement(By.XPath("//button[@class='pre-modal-btn-close']"));
-                if (closePanel.Displayed)
-                    closePanel.Click();
-                Console.WriteLine("Close the alert");
-            }
-            catch (NoSuchElementException ex)
-            {
-
-            }
-
-            // get location
-            // Handle pin element
-            try
-            {
-                driver.FindElement(By.XPath("//a[@class='fs10-nav-sm nav-color-white country-pin']")).Click();
-                Thread.Sleep(2000);
-            }catch(ElementClickInterceptedException e)
-            {
-                result = $"cannot click pin this link {orderInfo.OrderLink}|FAILED";
-                Console.WriteLine(result);
-                driver.Quit();
-                return result;
-            }
-            
-            IWebElement alertLocation = null;
-            try
-            {
-                alertLocation = wait.Until(SeleniumExtras.WaitHelpers.
-                    ExpectedConditions.ElementExists(By.XPath("//div[@class='hf-geomismatch-btn-container']")));
-            }
-            catch (TimeoutException e)
-            {
-
-            }
-
-            if (alertLocation.Displayed)
-            {
-                alertLocation.Click();
-                Thread.Sleep(2000);
-            }
-            else
-            {
-                driver.FindElement(By.XPath("//p[@class='nav-bold' and contains(text(),'United States')]")).Click();
-                Thread.Sleep(2000);
-            }
-
-            driver.Navigate().GoToUrl("https://www.nike.com/launch/");
-            Console.WriteLine("Loaded NIKE Launch page");
-            Thread.Sleep(5000);
-
-            // Load item page
-            //if(orderInfo.OrderLink.Equals(null)||orderInfo.OrderLink.Equals(""))
-            //{
-            //    result = "There are no link|FAILED";
-            //    Console.WriteLine(result);
-            //    driver.Quit();
-            //    orderList.Remove(orderInfo);
-            //    return result;
-            //}
-
-            driver.Navigate().GoToUrl(orderInfo.OrderLink);
-            Console.WriteLine($"Load page {orderInfo.OrderLink}");
-            Thread.Sleep(3000);
-
-            // Check sold out
-            bool soldOut = false;
-            try
-            {
-                soldOut = driver.FindElement(By.XPath(
-                    "//div[@class='ncss-btn-primary-dark btn-lg disabled d-sm-b d-lg-ib buyable-full-width' " +
-                    "and contains(text(),'Sold Out')]")).Displayed;
-                //Thread.Sleep(2000);
-                if (soldOut)
-                {
-                    // add result
-                    result = $"Product at link {orderInfo.OrderLink} was SOLD OUT|FAILED";
-                    Console.WriteLine(result);
-                    driver.Quit();
-                    orderList.Remove(orderInfo);
-                    return result;
-                }
-            }
-            catch (NoSuchElementException e)
-            {
-                Console.WriteLine(e);
-            }
-
-            // Check size available
-            bool sizeAvailable = false;
-            try
-            {
-                sizeAvailable = driver.FindElement(
-                    By.XPath($"//label[@class = 'css-xf3ahq' and text() = '{orderInfo.Size}']")).Displayed;
-                //Thread.Sleep(2000);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            if (sizeAvailable == false)
-            {
-                // add result
-                result = $"This size is unavailable at link {orderInfo.OrderLink}|FAILED";
-                Console.WriteLine(result);
-                driver.Quit();
-                orderList.Remove(orderInfo);
-                return result;
-            }
-            else
-            {
-                if (!driver.FindElement(
-                   By.XPath($"//label[@class = 'css-xf3ahq' and text() = '{orderInfo.Size}']")).Enabled)
-                {
-                    //add result
-                    result = $"This size is run out off at link {orderInfo.OrderLink}|FAILED";
-                    Console.WriteLine(result);
-                    //driver.Quit();
-                }
-                else
-                {
-                    // Click button size
-                    try
-                    {
-                        IWebElement sizebtn = driver.FindElement(By.XPath($"//label[@class = 'css-xf3ahq' and text() = '{orderInfo.Size}']"));
-                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", sizebtn);
-                        Actions action = new Actions(driver);
-                        action.MoveToElement(sizebtn).Click().Perform();
-                        Console.WriteLine("Choose button size " + driver.FindElement(
-                        By.XPath($"//label[@class = 'css-xf3ahq' and text() = '{orderInfo.Size}']")).Text);
-                        Thread.Sleep(2000);
-
-                        // Click add to cart
-                        IWebElement addCartBtn = driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg add-to-cart-btn']"));
-                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", addCartBtn);
-                        action = new Actions(driver);
-                        action.MoveToElement(addCartBtn).Click().Perform();
-                        Console.WriteLine("Click add to Cart " + driver.FindElement(By.XPath("//button[@class='ncss-btn-primary-dark btn-lg add-to-cart-btn']")).Text);
-                        Thread.Sleep(2000);
-                    }
-                    catch(NoSuchElementException e)
-                    {
-                        result = $"Cannot choose size or add to cart {orderInfo.OrderLink}|FAILED";
-                        Console.WriteLine(result);
-                        driver.Quit();
-                        return result;
-                    }
-                    
-                    // Handle item load into cart
-                    try
-                    {
-                        Thread.Sleep(2000);
-                        wait.Until(SeleniumExtras.WaitHelpers.
-                            ExpectedConditions.ElementIsVisible(By.XPath("//div[@class='cart-item-modal-content-container " +
-                            "ncss-container p6-sm bg-white']")));
-                        Console.WriteLine("Add already");
-                    }
-                    catch (Exception e)
-                    {
-                        result = $"Cannot add item to cart {orderInfo.OrderLink}|FAILED";
-                        Console.WriteLine(result);
-                        driver.Quit();
-                        return result;
-                    }
-
-                    // Click to check the cart
-                    driver.FindElement(
-                        By.XPath("//a[" +
-                        "@class='hover-color-black text-color-grey bg-transparent " +
-                        "prl3-sm pt2-sm pb2-sm m0-sm fs12-sm d-sm-b jewel-cart-container']")).Click();
-                    Console.WriteLine("Load the cart");
-                    Thread.Sleep(2000);
-
-                    // Click to checkout
-                    try
-                    {
-                        driver.FindElement(
-                           By.XPath("//button[@data-automation='guest-checkout-button']")).Click();
-                        Thread.Sleep(2000);
-                    }
-                    catch (Exception e)
-                    {
-                        result = $"Failed order {orderInfo.OrderLink}|FAILED";
-                        Console.WriteLine(result);
-                        driver.Quit();
-                        return result;
-                    }
-
-                    // load list button to find checkout button
-                    var checkoutBtn = driver.FindElement(By.XPath("//div[@class='d-sm-h d-lg-tr']"));
-                    checkoutBtn.FindElement(By.XPath("//button[text()='Guest Checkout']")).Click();
-                    Console.WriteLine("Clicked Checkout");
-                    Thread.Sleep(2000);
-
-                    //Insert First name and last name
-                    try
-                    {
-                        result = AutoFill(driver, orderInfo);
-                        Thread.Sleep(5000);
-                    }catch(Exception e)
-                    {
-                        result = $"Cannot billing order {orderInfo.OrderLink}|FAILED";
-                        driver.Quit();
-                        return result;
-                    }
-
-                    // check result after billing
-                    if (String.IsNullOrWhiteSpace(result))
-                    {
-                        result = $"Cannot billing order {orderInfo.OrderLink}|FAILED";
-                        driver.Quit();
-                        return result;
-                    }
-                    
-                    //result = $"This product is ordered {orderInfo.OrderLink}|SUCCESSED";
-                    Console.WriteLine(result);
-                    driver.Quit();
-                }
-            }
-            orderList.Remove(orderInfo);
+            driver.Navigate().GoToUrl("https://www.ebay.com/");
+            Thread.Sleep(1000);
+            driver.Close();
+            result = $"Close account...{orderInfo.Fname} {orderInfo.Lname}";
             return result;
         }
 
@@ -964,8 +719,6 @@ ZW|Zimbabwe";
             parlOps.CancellationToken = token;
             parlOps.MaxDegreeOfParallelism = TAB;
             string result = "";
-            DateTime past = DateTime.Now;
-            TimeSpan diff;
             try
             {
                 try
@@ -976,53 +729,24 @@ ZW|Zimbabwe";
                        parlOps, (order, state) =>
                        {
                            parlOps.CancellationToken.ThrowIfCancellationRequested();
-                           DateTime present = ConvertLocalDateTime(order);
-                           int compare_datetime = DateTime.Compare(present, order.Time);
-                           if (compare_datetime >= 0) // change to datetime to select order to pickup and order
+                           result = $"loading {order.Fname} {order.Lname}...";
+                           resultTextBox.Invoke(new MethodInvoker(delegate
                            {
-                               result = $"loading {order.OrderLink}...";
-                               resultTextBox.Invoke(new MethodInvoker(delegate
-                               {
-                                   resultTextBox.Text += result + Environment.NewLine;
-                               }
-                              ));
-                               result = LoadDriver(order);
-                               //remove_order.Add(order.OrderLink);
-                               Console.WriteLine("Link: {0}, at Thread = {1}",
-                                  order.OrderLink,
-                                  Thread.CurrentThread.ManagedThreadId);
-                               // Update result
-                               resultTextBox.Invoke(new MethodInvoker(delegate
-                               {
-                                   resultTextBox.Text += result + Environment.NewLine;
-                               }
-                              ));
-                               Thread.Sleep(10000);
+                               resultTextBox.Text += result + Environment.NewLine;
                            }
-                           else
+                          ));
+                           result = LoadDriver(order);
+                           //remove_order.Add(order.OrderLink);
+                           Console.WriteLine("Account: {0}, at Thread = {1}",
+                              order.Fname+" "+order.Lname,
+                              Thread.CurrentThread.ManagedThreadId);
+                           // Update result
+                           resultTextBox.Invoke(new MethodInvoker(delegate
                            {
-                               result = $"Wait until {order.Time} of {order.Country}";
-                               Console.WriteLine(result);
-                               // Update result
-                               resultTextBox.Invoke(new MethodInvoker(delegate
-                               {
-                                   resultTextBox.Text += result + Environment.NewLine;
-                               }
-                              ));
-                               Thread.Sleep(10000);
+                               resultTextBox.Text += result + Environment.NewLine;
                            }
-                           // clear after 15 minutes
-                           DateTime max = DateTime.Now;
-                           diff = max - past;
-                           if((int)diff.TotalMilliseconds >= 15 * 60000)
-                           {
-                               past = max;
-                               resultTextBox.Invoke(new MethodInvoker(delegate
-                               {
-                                   resultTextBox.Text = "";
-                               }
-                             ));
-                           }
+                          ));
+                           Thread.Sleep(10000);
                        }
                    );
                 }
@@ -1072,46 +796,6 @@ ZW|Zimbabwe";
             }
         }
 
-        private DateTime ConvertLocalDateTime(OrderInfo order)
-        {
-
-            // Get current time utc
-            DateTime currentDateTime = DateTime.UtcNow;
-            string countryName = order.Country;
-            Console.WriteLine(countryName);
-            string value = countryCodeList.Find(item => item.CountryName == countryName).CountryCode;
-
-            var sourceZone = TimeZoneInfo.GetSystemTimeZones();
-
-            // Get Location time
-            var source = TzdbDateTimeZoneSource.Default;
-            IEnumerable<string> windowsZoneIds = source.ZoneLocations
-                .Where(x => x.CountryCode == value)
-                .Select(tz => source.WindowsMapping.MapZones
-                    .FirstOrDefault(x => x.TzdbIds.Contains(
-                                         source.CanonicalIdMap.First(y => y.Value == tz.ZoneId).Key)))
-                .Where(x => x != null)
-                .Select(x => x.WindowsId)
-                .Distinct();
-
-            //Get zone destination
-            // Egypt Irland do not in system
-            try
-            {
-                TimeZoneInfo zoneDestination = TimeZoneInfo.FindSystemTimeZoneById(windowsZoneIds.ElementAt(0));
-                // Convert time 
-                DateTime newDateTimeZone = TimeZoneInfo.ConvertTimeFromUtc(currentDateTime, zoneDestination);
-                Console.WriteLine($"{order.Country} time: " + newDateTimeZone);
-                return newDateTimeZone;
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                String message = "Cannot find out timezone, use current UTC Time?";
-                MessageBoxButtons buttons = MessageBoxButtons.OK;
-                DialogResult result = MessageBox.Show(message, "Alert message", buttons, MessageBoxIcon.Information);
-                return currentDateTime;
-            }
-        }
 
         private string AutoFill(IWebDriver driver, OrderInfo order)
         {
