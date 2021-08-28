@@ -483,7 +483,7 @@ ZW|Zimbabwe";
             var fileContent = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.InitialDirectory = "d:\\";
+                openFileDialog.InitialDirectory = @"d:\\";
                 openFileDialog.Filter = "csv files (*.csv)|*.csv|All files (*.*)|*.*";
                 openFileDialog.FilterIndex = 2;
                 openFileDialog.RestoreDirectory = true;
@@ -707,8 +707,16 @@ ZW|Zimbabwe";
 
             driver.Navigate().GoToUrl("https://www.ebay.com/");
             Thread.Sleep(1000);
-            driver.Close();
+            Console.WriteLine("Click button register");
+            // click register
+            IWebElement registerBtn = driver.FindElement(By.XPath("//a[text()='register']"));
+            registerBtn.Click();
+            Thread.Sleep(5000);
+            AutoFill(driver, orderInfo);
             result = $"Close account...{orderInfo.Fname} {orderInfo.Lname}";
+            driver.Close();
+            driver.Dispose();
+            orderList.Remove(orderInfo);
             return result;
         }
 
@@ -797,187 +805,36 @@ ZW|Zimbabwe";
         }
 
 
-        private string AutoFill(IWebDriver driver, OrderInfo order)
+        private string AutoFill(IWebDriver driver, Account order)
         {
             string result = "";
 
-            var firstName = driver.FindElement(By.Id("firstName"));
-            firstName.SendKeys(order.FirstName);
+            var firstName = driver.FindElement(By.Id("firstname"));
+            firstName.SendKeys(order.Fname);
             firstName.Submit();
-            Console.WriteLine($"Add First Name: {order.FirstName}");
+            Console.WriteLine($"Add First Name: {order.Fname}");
             Thread.Sleep(2000);
 
-            var lastName = driver.FindElement(By.Id("lastName"));
-            lastName.SendKeys(order.LastName);
+            var lastName = driver.FindElement(By.Id("lastname"));
+            lastName.SendKeys(order.Lname);
             lastName.Submit();
-            Console.WriteLine($"Add last Name: {order.LastName}");
+            Console.WriteLine($"Add last Name: {order.Lname}");
             Thread.Sleep(2000);
 
-            driver.FindElement(By.Id("addressSuggestionOptOut")).Click();
-            Thread.Sleep(2000);
-
-            var address = driver.FindElement(By.Id("address1"));
-            address.SendKeys(order.Address);
-            address.Submit();
-            //address.SendKeys(Keys.Enter);
-            Console.WriteLine($"Add Address: {order.Address}");
-            Thread.Sleep(2000);
-
-            var city = driver.FindElement(By.Id("city"));
-            city.SendKeys(order.City);
-            city.Submit();
-            Console.WriteLine($"Add City: {order.City}");
-            Thread.Sleep(2000);
-
-            driver.FindElement(By.Id("state")).Click();
-            Thread.Sleep(2000);
-            var state = driver.FindElement(By.XPath($"//option[@value='{order.StateCode}']"));
-            state.Click();
-            Console.WriteLine($"Choose state: {order.StateCode}");
-            Thread.Sleep(2000);
-
-            var postalCode = driver.FindElement(By.Id("postalCode"));
-            postalCode.SendKeys(order.PostalCode);
-            postalCode.Submit();
-            Console.WriteLine($"Add PostalCode: {order.PostalCode}");
-            Thread.Sleep(2000);
-
-            var email = driver.FindElement(By.Id("email"));
+            var email = driver.FindElement(By.Id("Email"));
             email.SendKeys(order.Email);
             email.Submit();
-            Console.WriteLine($"Add Email: {order.Email}");
+            Console.WriteLine($"Add last Name: {order.Email}");
             Thread.Sleep(2000);
 
-            var phoneNumber = driver.FindElement(By.Id("phoneNumber"));
-            phoneNumber.SendKeys(order.Phone);
-            phoneNumber.Submit();
-            Console.WriteLine($"Add Number phone: {order.Phone}");
+            var password = driver.FindElement(By.Id("password"));
+            password.SendKeys(order.Password);
+            password.Submit();
+            Console.WriteLine($"Add last Name: {order.Password}");
             Thread.Sleep(2000);
 
-            IWebElement paymentBtn = driver.FindElement(By.XPath("//button[text() = 'Continue to Payment']"));
-            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", paymentBtn);
-            Actions action = new Actions(driver);
-            //action.MoveToElement(paymentBtn).Click().Perform();
-            paymentBtn.Click();
-            Thread.Sleep(2000);
-            Console.WriteLine($"Payment");
-            Thread.Sleep(2000);
+            result = "Done";
 
-            action = new Actions(driver);
-            action.SendKeys(OpenQA.Selenium.Keys.End).Build().Perform();
-
-            driver.SwitchTo().Frame(driver.FindElement(By.XPath("//iframe[@class='credit-card-iframe mt1 u-full-width prl2-sm']")));
-            Thread.Sleep(2000);
-
-            IWebElement creditCard = driver.FindElement(By.Id("creditCardNumber"));
-            creditCard.SendKeys(order.Card);
-            creditCard.Submit();
-            Console.WriteLine($"Add Card: {order.Card}");
-            Thread.Sleep(2000);
-
-            var expirationDate = driver.FindElement(By.Id("expirationDate"));
-            expirationDate.SendKeys(order.ExDate.Replace("/",""));
-            expirationDate.Submit();
-            Console.WriteLine($"Add Expiration Date: {order.ExDate}");
-            Thread.Sleep(2000);
-
-            var cvNumber = driver.FindElement(By.Id("cvNumber"));
-            cvNumber.SendKeys(order.Security);
-            cvNumber.Submit();
-            Console.WriteLine($"Add cvNumber: {order.Security}");
-            Thread.Sleep(2000);
-
-            driver.SwitchTo().DefaultContent();
-            Thread.Sleep(2000);
-
-            //action = new Actions(driver);
-            //action.SendKeys(OpenQA.Selenium.Keys.End).Build().Perform();
-
-            if (!String.IsNullOrWhiteSpace(order.SecondFistName) &&
-               !String.IsNullOrWhiteSpace(order.SecondLastName) &&
-               !String.IsNullOrWhiteSpace(order.SecondAddress) &&
-               !String.IsNullOrWhiteSpace(order.SecondCity) &&
-               !String.IsNullOrWhiteSpace(order.SecondStateCode) &&
-               !String.IsNullOrWhiteSpace(order.SecondPostalCode))
-            {
-                //Click tick box
-                driver.FindElement(By.XPath("//label[@for='billingAddress']")).Click();
-                Thread.Sleep(2000);
-
-                //add second first name
-                var secondFirstName = driver.FindElement(By.Id("firstName"));
-                secondFirstName.SendKeys(order.SecondFistName);
-                secondFirstName.Submit();
-                Thread.Sleep(2000);
-
-                // add last name
-                var secondLastName = driver.FindElement(By.Id("lastName"));
-                secondLastName.SendKeys(order.SecondLastName);
-                secondLastName.Submit();
-                Thread.Sleep(2000);
-
-                // add second address
-                var secondAddress = driver.FindElement(By.Id("address1"));
-                secondAddress.SendKeys(order.SecondAddress);
-                secondAddress.Submit();
-                //address.SendKeys(Keys.Enter);
-                Thread.Sleep(2000);
-
-                // add second city
-                var secondCity = driver.FindElement(By.Id("city"));
-                secondCity.SendKeys(order.SecondCity);
-                secondCity.Submit();
-                Thread.Sleep(2000);
-
-                // add second state
-                driver.FindElement(By.Id("state")).Click();
-                Thread.Sleep(2000);
-                var secondState = driver.FindElement(By.XPath($"//option[@value='{order.SecondStateCode}']"));
-                secondState.Click();
-                Thread.Sleep(2000);
-
-                // add second postalcode
-                var secondPostalCode = driver.FindElement(By.Id("postalCode"));
-                secondPostalCode.SendKeys(order.SecondPostalCode);
-                secondPostalCode.Submit();
-                Thread.Sleep(2000);
-            }
-
-            try
-            {
-                var placeOrder = driver.FindElement(By.XPath("//button[@class='d-lg-ib fs14-sm ncss-brand " +
-                "ncss-btn-accent pb2-lg pb3-sm prl5-sm " +
-                "pt2-lg pt3-sm u-uppercase' and text() = 'Place Order']"));
-                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", placeOrder);
-                Thread.Sleep(2000);
-                if (placeOrder.Enabled)
-                {
-                    placeOrder.Click();
-                    result = $"Order successfull {order.OrderLink}|SUCCESS";
-                }
-                //else
-                //{
-                //    //result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
-
-                //}
-                return result;
-            }
-            catch(Exception e)
-            {
-
-            }
-            var placeOrder1 = driver.FindElement(By.XPath("//button[text()='Continue To Order Review']"));
-            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", placeOrder1);
-            Thread.Sleep(2000);
-            if (placeOrder1.Enabled)
-            {
-                placeOrder1.Click();
-                result = $"Order successfull {order.OrderLink}|SUCCESS";
-            }
-            //else
-            //{
-            //    //result = $"Fail because fake order but stil successfull {order.OrderLink}|SUCCESS";
-            //}
             return result;
         }
 
